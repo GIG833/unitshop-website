@@ -1,93 +1,77 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
-export default function AdminLoginPage() {
+export default function AdminDashboard() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [authorized, setAuthorized] = useState(false);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    let active = true;
 
-    try {
-      const { error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+    async function checkAdmin() {
+      try {
+        const { data: userData, error: userError } =
+          await supabase.auth.getUser();
 
-      if (loginError) throw loginError;
+        if (userError || !userData.user) {
+          router.replace("/admin/login");
+          return;
+        }
 
-      const { data: isAdmin, error: roleError } =
-        await supabase.rpc("is_admin");
+        const { data: isAdmin, error: roleError } =
+          await supabase.rpc("is_admin");
 
-      if (roleError || !isAdmin) {
-        await supabase.auth.signOut();
-        setError("This account does not have admin access.");
-        return;
+        if (roleError || isAdmin !== true) {
+          router.replace("/admin/login");
+          return;
+        }
+
+        if (active) setAuthorized(true);
+      } catch {
+        router.replace("/admin/login");
       }
-
-      router.replace("/admin");
-    } catch {
-      setError("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
     }
+
+    checkAdmin();
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
+  if (!authorized) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        Checking admin access...
+      </main>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-sm space-y-4"
-      >
-        <h1 className="text-2xl font-bold text-blue-700">
-          UNITSHOP Admin
+    <main className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="text-3xl font-bold text-blue-700">
+          UNITSHOP Admin Dashboard
         </h1>
-        <p className="text-sm text-slate-500">
-          Sign in to manage your store.
+
+        <p className="mt-3 text-slate-600">
+          Manage your store from one place.
         </p>
 
-        <input
-          type="email"
-          placeholder="Admin Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full rounded-lg border p-3 text-slate-900"
-        />
+        <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold">
+            Product Management
+          </h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full rounded-lg border p-3 text-slate-900"
-        />
-
-        {error && (
-          <p role="alert" className="text-sm text-red-600">
-            {error}
+          <p className="mt-2 text-slate-500">
+            Product management features coming soon.
           </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white disabled:opacity-50"
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
+        </div>
+      </div>
     </main>
   );
 }
