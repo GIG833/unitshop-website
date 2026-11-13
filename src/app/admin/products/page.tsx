@@ -1,65 +1,39 @@
-D
-ဟုတ်ပြီဗျ 😁✅ Commit လုပ်ပြီးပြီလို့ ယူဆပြီး ဆက်သွားမယ်နော်။
+10 စက္ကန့်စောင့်ပြီး Address Bar မှာ /admin/login ဖြစ်နေပါတယ်။
+ဟုတ်ပြီဗျ 👍 အခု အခြေအနေ ပိုရှင်းလာပါပြီ။
 
-Step 58 — Vercel Deployment စစ်မယ်
+/admin ကိုဖွင့်ပြီး နောက်ဆုံး /admin/login ရောက်သွားတယ်ဆိုတော့ Admin Dashboard က Login Page ဆီ Redirect လုပ်နေပါတယ်။
 
-Vercel Dashboard ကိုဖွင့်ပါ။
+ဒါက Login မဝင်ထားတဲ့သူအတွက် မှန်ကန်တဲ့ လုပ်ဆောင်ချက်ပါ။ ဒါပေမဲ့ Login Page မှာ Checking admin access... ပြနေတာက သီးခြားစစ်ဖို့ လိုနေသေးပါတယ်။
 
-unitshop-website Project ကိုဝင်ပါ။
-
-Deployments ကိုနှိပ်ပါ။
-
-နောက်ဆုံး Deployment ရဲ့ Status ကိုကြည့်ပါ။
-
-Ready ဖြစ်နေပြီလား၊ Building ဖြစ်နေသေးလားဗျ?
-
-အဲ့ဒါလေးပြောပေးပါ။ ပြီးရင် Admin Login ကို ပြန်စမ်းကြမယ်ဗျ။
-
-Ready
-အဆင်ပြေပြီဗျ 😁✅ Vercel Deployment = Ready ဖြစ်ပြီဆိုတော့ Admin Login ကို ပြန်စမ်းကြည့်မယ်နော်။
-
-Step 59 — Admin Login စမ်းမယ်
-Chrome မှာ New Incognito Window ဖွင့်ပါ။
-
-ဒီ Link ကိုဝင်ပါ။
+Step 53 — Login Page ကို တိုက်ရိုက်စစ်မယ်
+အခု Incognito မှာ ဒီ Link ကို တိုက်ရိုက်ဖွင့်ပေးပါ။
 
 https://unitshop-website.vercel.app/admin/login
 
-Admin Email နဲ့ Password ထည့်ပြီး Sign In နှိပ်ပါ။
+5 စက္ကန့်လောက်စောင့်ပြီး Email / Password ဖြည့်ရတဲ့ Login Form ပေါ်လာသလား ပြောပေးပါဗျ။
 
-10 စက္ကန့်လောက် စောင့်ကြည့်ပါ။
+Login Form ပေါ်လာရင် Admin Protection ရဲ့ အခြေခံလုပ်ဆောင်ချက်ကို အတည်ပြုနိုင်ပါပြီ။ မပေါ်ရင် Login Page ရဲ့ Code ကို ဆက်စစ်ကြမယ်။
 
-ဘယ်လိုပေါ်လာလဲဗျ?
+ခုနလိုပဲဗိ
+ဟုတ်ပြီဗျ 👍 ဒါဆို ပြဿနာကို ပိုပြီးကျဉ်းမြောင်းအောင် ရှာနိုင်ပါပြီ။
 
-A — Admin Dashboard ပေါ်လာတယ်။
+/admin/login ကို တိုက်ရိုက်ဖွင့်တာတောင် Checking admin access... ပဲ ပြနေတယ်ဆိုရင် Login Page က Dashboard ဆီ အလိုအလျောက် Redirect လုပ်နေပြီး Dashboard က Login Page ဆီ ပြန်ပို့နေတဲ့ Redirect Loop ဖြစ်နိုင်ပါတယ်။
 
-B — Checking admin access... မှာ ရပ်နေတယ်။
+အခု Code ကို မပြင်သေးဘဲ တစ်ချက်စစ်ကြည့်ရအောင်ဗျ။
 
-C — Login Page ကိုပဲ ပြန်ရောက်တယ်။
+Step 54 — Login Page Code စစ်မယ်
+GitHub မှာ—
 
-D — Error Message ပေါ်တယ်။
+GIG833/unitshop-website ကိုဖွင့်ပါ။
 
-A / B / C / D တစ်ခုလေးပဲ ပြန်ပြောပေးပါဗျ။ အဲ့ဒီရလဒ်အတိုင်း နောက်တစ်ဆင့် ဆက်ပြင်ကြမယ်။
+src/app/admin/login/page.tsx ကိုသွားပါ။
 
-Dashboard ပေါ်ပါတယ်
-အောင်မြင်ပြီဗျ! 🎉😁
+အဲဒီဖိုင်ထဲက Code အပြည့်အစုံကို Copy လုပ်ပြီး ဒီမှာပို့ပေးပါ။
 
-UNITSHOP Admin Login အလုပ်လုပ်သွားပြီ။
+အရင်က ပို့ထားတဲ့ Login Code နဲ့ လက်ရှိ Code တူသေးလား၊ Auto Redirect ပါလာသလား စစ်ပေးမယ်။
 
-Incognito မှာ Login ဝင်ပြီး Dashboard ပေါ်လာတယ်ဆိုတော့ အရင်ကဖြစ်နေတဲ့ Login ပြဿနာကို ဖြေရှင်းနိုင်ခဲ့ပါပြီ။
+ပြီးရင် လိုအပ်တဲ့နေရာကိုပဲ ပြင်ပြီး Incognito မှာ Login Form မှန်မှန်ပေါ်အောင် ဆက်လုပ်ကြမယ်ဗျ။
 
-နောက်တစ်ဆင့် — Step 60
-အခု Admin Dashboard ကနေ Product Management စလုပ်ကြမယ်ဗျ။
-
-ဒါပေမဲ့ အရင်ဆုံး Security ကို တစ်ချက်စစ်ချင်ပါတယ်။
-
-Dashboard ပေါ်နေတဲ့ Incognito Window မှာ Address Bar ကိုနှိပ်ပါ။
-
-/admin/login နေရာကို ပြန်သွားပါ။
-
-Login Form ပြန်ပေါ်လား၊ Dashboard ကို အလိုအလျောက် ပြန်ရောက်လား ကြည့်ပေးပါ။
-
-ရလဒ်လေးပြောပေးပါဗျ။ ပြီးရင် Product Add / Edit / Delete လုပ်နိုင်တဲ့ Admin Dashboard ကို ဆက်တည်ဆောက်ကြမယ်။
 
 "use client";
 
@@ -67,32 +41,31 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 
-type Category = { id: number; name_en: string };
+type Category = {
+  id: number;
+  name_en: string;
+};
+
 type Product = {
   id: number;
   name_en: string;
-  name_mm: string | null;
   price: number;
-  category_id: number;
-  description_en: string | null;
-  description_mm: string | null;
   image_url: string | null;
   is_active: boolean;
 };
 
-const fields = "id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active";
-
 export default function ProductsPage() {
   const router = useRouter();
+
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [editingId, setEditingId] = useState<number | null>(null);
+
   const [nameEn, setNameEn] = useState("");
   const [nameMm, setNameMm] = useState("");
   const [price, setPrice] = useState("");
@@ -104,59 +77,360 @@ export default function ProductsPage() {
 
   useEffect(() => {
     let active = true;
+
     async function initialize() {
       try {
-        const { data: userData, error: userError } = await supabase.auth.getUser();
+        const { data: userData, error: userError } =
+          await supabase.auth.getUser();
+
         if (userError || !userData.user) {
           router.replace("/admin/login");
           return;
         }
-        const { data: isAdmin, error: roleError } = await supabase.rpc("is_admin");
+
+        const { data: isAdmin, error: roleError } =
+          await supabase.rpc("is_admin");
+
         if (roleError || isAdmin !== true) {
           router.replace("/admin/login");
           return;
         }
+
         if (!active) return;
         setAuthorized(true);
+
         const [categoryResult, productResult] = await Promise.all([
-          supabase.from("categories").select("id,name_en").order("name_en"),
-          supabase.from("products").select(fields).order("created_at", { ascending: false }),
+          supabase
+            .from("categories")
+            .select("id,name_en")
+            .order("name_en"),
+          supabase
+            .from("products")
+            .select("id,name_en,price,image_url,is_active")
+            .order("created_at", { ascending: false }),
         ]);
+
         if (!active) return;
-        if (categoryResult.error) throw categoryResult.error;
-        if (productResult.error) throw productResult.error;
-        setCategories(categoryResult.data || []);
-        setProducts((productResult.data || []) as Product[]);
-      } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load product data.");
+
+        if (categoryResult.error) {
+          setError(categoryResult.error.message);
+        } else if (productResult.error) {
+          setError(productResult.error.message);
+        } else {
+          setCategories(categoryResult.data || []);
+          setProducts(productResult.data || []);
+        }
+      } catch {
+        if (active) setError("Failed to load product data.");
       } finally {
         if (active) setLoading(false);
       }
     }
-    void initialize();
-    return () => { active = false; };
+
+    initialize();
+
+    return () => {
+      active = false;
+    };
   }, [router]);
 
-  async function refreshProducts() {
-    const { data, error: refreshError } = await supabase
-      .from("products")
-      .select(fields)
-      .order("created_at", { ascending: false });
-    if (refreshError) throw refreshError;
-    setProducts((data || []) as Product[]);
+  function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
+    setError("");
+    const file = e.target.files?.[0] || null;
+
+    if (!file) {
+      setPhoto(null);
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError("Please select a JPG, PNG or WebP image.");
+      setPhoto(null);
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be smaller than 5 MB.");
+      setPhoto(null);
+      e.target.value = "";
+      return;
+    }
+
+    setPhoto(file);
   }
 
-  function resetForm() {
-    setEditingId(null);
-    setNameEn("");
-    setNameMm("");
-    setPrice("");
-    setCategoryId("");
-    setDescriptionEn("");
-    setDescriptionMm("");
-    setPhoto(null);
-    setFileInputKey((key) => key + 1);
+  async function handleAddProduct(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (saving) return;
+
+    setError("");
+    setSuccess("");
+
+    const parsedPrice = Number(price);
+
+    if (!nameEn.trim() || !categoryId) {
+      setError("Product name and category are required.");
+      return;
+    }
+
+    if (
+      !price.trim() ||
+      !Number.isFinite(parsedPrice) ||
+      parsedPrice < 0
+    ) {
+      setError("Please enter a valid price.");
+      return;
+    }
+
+    if (!photo) {
+      setError("Please select a product photo.");
+      return;
+    }
+
+    setSaving(true);
+
+    let uploadedPath: string | null = null;
+
+    try {
+      const extension = photo.type === "image/png"
+        ? "png"
+        : photo.type === "image/webp"
+          ? "webp"
+          : "jpg";
+
+      const filePath = `products/${crypto.randomUUID()}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, photo, {
+          contentType: photo.type,
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      uploadedPath = filePath;
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      const { error: insertError } = await supabase
+        .from("products")
+        .insert({
+          name_en: nameEn.trim(),
+          name_mm: nameMm.trim(),
+          price: parsedPrice,
+          category_id: Number(categoryId),
+          description_en: descriptionEn.trim(),
+          description_mm: descriptionMm.trim(),
+          image_url: urlData.publicUrl,
+          is_active: true,
+        });
+
+      if (insertError) throw insertError;
+
+      setSuccess("Product added successfully!");
+
+      setNameEn("");
+      setNameMm("");
+      setPrice("");
+      setCategoryId("");
+      setDescriptionEn("");
+      setDescriptionMm("");
+      setPhoto(null);
+      setFileInputKey((key) => key + 1);
+
+      const { data, error: refreshError } = await supabase
+        .from("products")
+        .select("id,name_en,price,image_url,is_active")
+        .order("created_at", { ascending: false });
+
+      if (refreshError) {
+        setError("Product saved, but list refresh failed.");
+      } else {
+        setProducts(data || []);
+      }
+    } catch (err) {
+      if (uploadedPath) {
+        await supabase.storage
+          .from("product-images")
+          .remove([uploadedPath]);
+      }
+
+      setError(
+        err instanceof Error ? err.message : "Failed to add product."
+      );
+    } finally {
+      setSaving(false);
+    }
   }
+
+  if (loading) {
+    return <main className="p-6">Checking admin access...</main>;
+  }
+
+  if (!authorized) return null;
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-4 md:p-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <h1 className="text-2xl font-bold text-blue-700">
+          UNITSHOP Product Management
+        </h1>
+
+        {error && (
+          <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">
+            {error}
+          </p>
+        )}
+
+        {success && (
+          <p className="rounded-lg bg-green-50 p-3 text-green-700">
+            {success}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleAddProduct}
+          className="space-y-4 rounded-2xl bg-white p-5 shadow-sm"
+        >
+          <h2 className="text-lg font-semibold">Add Product</h2>
+
+          <input
+            required
+            placeholder="Product Name (English)"
+            value={nameEn}
+            onChange={(e) => setNameEn(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          />
+
+          <input
+            placeholder="Product Name (Myanmar)"
+            value={nameMm}
+            onChange={(e) => setNameMm(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          />
+
+          <input
+            required
+            type="number"
+            min="0"
+            placeholder="Selling Price (Ks)"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          />
+
+          <select
+            required
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          >
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name_en}
+              </option>
+            ))}
+          </select>
+
+          <textarea
+            placeholder="Description (English)"
+            value={descriptionEn}
+            onChange={(e) => setDescriptionEn(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          />
+
+          <textarea
+            placeholder="Description (Myanmar)"
+            value={descriptionMm}
+            onChange={(e) => setDescriptionMm(e.target.value)}
+            className="w-full rounded-lg border p-3"
+          />
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">
+              Product Photo
+            </label>
+            <input
+              key={fileInputKey}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePhotoChange}
+              required
+              className="w-full rounded-lg border p-3"
+            />
+            <p className="text-xs text-slate-500">
+              JPG, PNG or WebP. Maximum 5 MB.
+            </p>
+            {photo && (
+              <p className="text-sm text-blue-700">
+                Selected: {photo.name}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white disabled:opacity-50"
+          >
+            {saving ? "Uploading & Saving..." : "Add Product"}
+          </button>
+        </form>
+
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold">
+            Products ({products.length})
+          </h2>
+
+          {products.length === 0 ? (
+            <p className="text-slate-500">No products yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between gap-4 border-b py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.name_en}
+                        className="h-16 w-16 rounded-lg border object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-400">
+                        No image
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="font-medium">{product.name_en}</p>
+                      <p className="text-sm text-slate-500">
+                        {Number(product.price).toLocaleString()} Ks
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-sm">
+                    {product.is_active ? "Available" : "Unavailable"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
 
 
 
