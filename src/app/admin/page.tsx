@@ -1,5 +1,58 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
+
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    async function checkAdmin() {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+
+      if (!active) return;
+
+      if (userError || !userData.user) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      const { data: isAdmin, error: roleError } =
+        await supabase.rpc("is_admin");
+
+      if (!active) return;
+
+      if (roleError || isAdmin !== true) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      setAuthorized(true);
+    }
+
+    checkAdmin().catch(() => {
+      if (active) router.replace("/admin/login");
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
+  if (!authorized) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        Checking admin access...
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 p-6">
       <div className="mx-auto max-w-5xl">
