@@ -232,6 +232,45 @@ export default function ProductsPage() {
     }
   }
 
+  async function toggleAvailability(product: Product) {
+    if (saving) return;
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    const newStatus = !product.is_active;
+
+    try {
+      const { data, error: updateError } = await supabase
+        .from("products")
+        .update({ is_active: newStatus })
+        .eq("id", product.id)
+        .select("id,is_active")
+        .single();
+
+      if (updateError) throw updateError;
+
+      setProducts((current) =>
+        current.map((item) =>
+          item.id === product.id
+            ? { ...item, is_active: data.is_active }
+            : item
+        )
+      );
+
+      setSuccess("Product availability updated!");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update availability."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (loading) {
     return <main className="p-6">Checking admin access...</main>;
   }
@@ -382,9 +421,20 @@ export default function ProductsPage() {
                     </div>
                   </div>
 
-                  <span className="text-sm">
-                    {product.is_active ? "Available" : "Unavailable"}
-                  </span>
+                 
+<button
+  type="button"
+  onClick={() => toggleAvailability(product)}
+  disabled={saving}
+  className={`rounded-lg px-3 py-2 text-sm font-medium text-white disabled:opacity-50 ${
+    product.is_active
+      ? "bg-green-600"
+      : "bg-red-600"
+  }`}
+>
+  {product.is_active ? "Available" : "Unavailable"}
+</button>
+
                 </div>
               ))}
             </div>
