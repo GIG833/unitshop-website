@@ -9,10 +9,15 @@ type Category = {
   name_en: string;
 };
 
+
 type Product = {
   id: number;
   name_en: string;
+  name_mm: string | null;
   price: number;
+  category_id: number;
+  description_en: string | null;
+  description_mm: string | null;
   image_url: string | null;
   is_active: boolean;
 };
@@ -37,6 +42,8 @@ export default function ProductsPage() {
   const [descriptionMm, setDescriptionMm] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
+
+const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -69,7 +76,9 @@ export default function ProductsPage() {
             .order("name_en"),
           supabase
             .from("products")
-            .select("id,name_en,price,image_url,is_active")
+           
+.select("id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active")
+
             .order("created_at", { ascending: false }),
         ]);
 
@@ -96,6 +105,38 @@ export default function ProductsPage() {
       active = false;
     };
   }, [router]);
+
+  function startEditing(product: Product) {
+    if (saving) return;
+
+    setEditingProductId(product.id);
+    setNameEn(product.name_en);
+    setNameMm(product.name_mm ?? "");
+    setPrice(String(product.price));
+    setCategoryId(String(product.category_id));
+    setDescriptionEn(product.description_en ?? "");
+    setDescriptionMm(product.description_mm ?? "");
+    setPhoto(null);
+    setFileInputKey((key) => key + 1);
+    setError("");
+    setSuccess("");
+  }
+
+  function cancelEditing() {
+    if (saving) return;
+
+    setEditingProductId(null);
+    setNameEn("");
+    setNameMm("");
+    setPrice("");
+    setCategoryId("");
+    setDescriptionEn("");
+    setDescriptionMm("");
+    setPhoto(null);
+    setFileInputKey((key) => key + 1);
+    setError("");
+    setSuccess("");
+  }
 
   function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
     setError("");
@@ -209,7 +250,9 @@ export default function ProductsPage() {
 
       const { data, error: refreshError } = await supabase
         .from("products")
-        .select("id,name_en,price,image_url,is_active")
+       
+.select("id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active")
+
         .order("created_at", { ascending: false });
 
       if (refreshError) {
@@ -230,6 +273,123 @@ export default function ProductsPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleUpdateProduct() {
+    if (saving || editingProductId === null) return;
+
+    const parsedPrice = Number(price);
+
+    if (
+      !nameEn.trim() ||
+      !categoryId ||
+      !price.trim() ||
+      !Number.isFinite(parsedPrice) ||
+      parsedPrice < 0
+    ) {
+      setError("Please enter valid product details.");
+      return;
+    }
+
+   
+setSaving(true);
+setError("");
+setSuccess("");
+
+let uploadedPath: string | null = null;
+
+try {
+
+const updates: {
+  name_en: string;
+  name_mm: string;
+  price: number;
+  category_id: number;
+  description_en: string;
+  description_mm: string;
+  image_url?: string;
+} = {
+  name_en: nameEn.trim(),
+  name_mm: nameMm.trim(),
+  price: parsedPrice,
+  category_id: Number(categoryId),
+  description_en: descriptionEn.trim(),
+  description_mm: descriptionMm.trim(),
+};
+
+
+if (photo) {
+  const extension =
+    photo.type === "image/png"
+      ? "png"
+      : photo.type === "image/webp"
+        ? "webp"
+        : "jpg";
+
+  const filePath = `products/${crypto.randomUUID()}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("product-images")
+    .upload(filePath, photo, {
+      contentType: photo.type,
+      upsert: false,
+    });
+
+  if (uploadError) throw uploadError;
+
+uploadedPath = filePath;
+
+  const { data: urlData } = supabase.storage
+    .from("product-images")
+    .getPublicUrl(filePath);
+
+  updates.image_url = urlData.publicUrl;
+}
+
+      const { data, error: updateError } = await supabase
+        .from("products")
+        .update(updates)
+        .eq("id", editingProductId)
+        .select("id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active")
+        .single();
+
+      if (updateError) throw updateError;
+
+      setProducts((current) =>
+        current.map((item) =>
+          item.id === editingProductId ? data : item
+        )
+      );
+
+      setSuccess("Product updated successfully!");
+      setEditingProductId(null);
+      setNameEn("");
+      setNameMm("");
+      setPrice("");
+      setCategoryId("");
+      setDescriptionEn("");
+      setDescriptionMm("");
+      setPhoto(null);
+      setFileInputKey((key) => key + 1);
+ 
+} catch (err) {
+  if (uploadedPath) {
+    const { error: cleanupError } = await supabase.storage
+      .from("product-images")
+      .remove([uploadedPath]);
+
+    if (cleanupError) {
+      console.error("Photo cleanup failed:", cleanupError);
+    }
+  }
+
+  setError(
+    err instanceof Error ? err.message : "Failed to update product."
+  );
+} finally {
+  setSaving(false);
+}
+
   }
 
   async function toggleAvailability(product: Product) {
@@ -297,10 +457,23 @@ export default function ProductsPage() {
         )}
 
         <form
-          onSubmit={handleAddProduct}
+         
+onSubmit={(e) => {
+  if (editingProductId !== null) {
+    e.preventDefault();
+    void handleUpdateProduct();
+  } else {
+    void handleAddProduct(e);
+  }
+}}
+
           className="space-y-4 rounded-2xl bg-white p-5 shadow-sm"
         >
-          <h2 className="text-lg font-semibold">Add Product</h2>
+          
+<h2 className="text-lg font-semibold">
+  {editingProductId !== null ? "Edit Product" : "Add Product"}
+</h2>
+
 
           <input
             required
@@ -359,17 +532,26 @@ export default function ProductsPage() {
             <label className="block text-sm font-medium">
               Product Photo
             </label>
-            <input
-              key={fileInputKey}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handlePhotoChange}
-              required
-              className="w-full rounded-lg border p-3"
-            />
+          
+<input
+  key={fileInputKey}
+  type="file"
+  accept="image/jpeg,image/png,image/webp"
+  onChange={handlePhotoChange}
+  required={editingProductId === null}
+  className="w-full rounded-lg border p-3"
+/>
+
             <p className="text-xs text-slate-500">
               JPG, PNG or WebP. Maximum 5 MB.
             </p>
+            
+{editingProductId !== null && (
+  <p className="text-xs text-blue-600">
+    Leave photo empty to keep the current image.
+  </p>
+)}
+
             {photo && (
               <p className="text-sm text-blue-700">
                 Selected: {photo.name}
@@ -382,8 +564,26 @@ export default function ProductsPage() {
             disabled={saving}
             className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white disabled:opacity-50"
           >
-            {saving ? "Uploading & Saving..." : "Add Product"}
+       
+{saving
+  ? "Saving..."
+  : editingProductId !== null
+    ? "Save Changes"
+    : "Add Product"}
+
           </button>
+       
+{editingProductId !== null && (
+  <button
+    type="button"
+    onClick={cancelEditing}
+    disabled={saving}
+    className="w-full rounded-lg border border-slate-300 bg-white p-3 font-semibold text-slate-700 disabled:opacity-50"
+  >
+    Cancel Edit
+  </button>
+)}
+
         </form>
 
         <section className="rounded-2xl bg-white p-5 shadow-sm">
@@ -421,6 +621,15 @@ export default function ProductsPage() {
                     </div>
                   </div>
 
+
+<button
+  type="button"
+  onClick={() => startEditing(product)}
+  disabled={saving}
+  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+>
+  Edit
+</button>
                  
 <button
   type="button"
