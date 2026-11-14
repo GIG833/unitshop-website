@@ -2,6 +2,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Brand } from "./brand";
+import { PaymentSelection } from "./payment-selection";
+import {
+  isPaymentMethod,
+  type PaymentMethod,
+} from "@/features/checkout/payment";
 import { useCart } from "@/features/cart/use-cart";
 import { totalMMK, type CartEntry } from "@/features/cart/model";
 import {
@@ -30,6 +35,9 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   const [errors, setErrors] = useState<GuestErrors>({});
   const [checked, setChecked] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
+    null,
+  );
   const [request, setRequest] = useState(0);
   const [catalogue, setCatalogue] = useState<CatalogueState>({
     signature: "",
@@ -98,7 +106,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
       : error === "phone"
         ? t.checkoutPhoneError
         : t.checkoutTooLong;
-  const validationToken = `${signature}:${request}`;
+  const validationToken = `${signature}:${request}:${paymentMethod ?? ""}`;
   function updateField(field: keyof GuestDetails, value: string) {
     const next = { ...details, [field]: value };
     setDetails(next);
@@ -117,6 +125,10 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
         formRef.current
           ?.querySelector<HTMLElement>(`#checkout-${first}`)
           ?.focus();
+      return;
+    }
+    if (!isPaymentMethod(paymentMethod)) {
+      formRef.current?.querySelector<HTMLInputElement>("#payment-cod")?.focus();
       return;
     }
     if (canValidate) setChecked(validationToken);
@@ -227,6 +239,15 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
                 )}
               </div>
             ))}
+            <PaymentSelection
+              method={paymentMethod}
+              locale={locale}
+              invalid={attempted && !isPaymentMethod(paymentMethod)}
+              onChange={(method) => {
+                setPaymentMethod(method);
+                setChecked(null);
+              }}
+            />
             {attempted && Object.keys(errors).length > 0 && (
               <p role="alert" className="checkout-field-error">
                 {t.checkoutFixErrors}
@@ -334,6 +355,14 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
                   </div>
                 )}
                 <p className="checkout-help">{t.checkoutFees}</p>
+                {paymentMethod && (
+                  <p className="checkout-payment-summary">
+                    {t.paymentTitle}:{" "}
+                    <strong>
+                      {paymentMethod === "cod" ? t.paymentCod : t.paymentMmqr}
+                    </strong>
+                  </p>
+                )}
               </>
             )}
             <Link className="text-link" href={`/cart?lang=${locale}`}>

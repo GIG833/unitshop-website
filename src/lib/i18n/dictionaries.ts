@@ -70,6 +70,22 @@ export const dictionaries = {
       "This product is not available to view. It may have been removed or is no longer active.",
     description: "Description",
     noDescription: "No description is available yet.",
+    paymentTitle: "Payment method",
+    paymentPreview:
+      "Choose a payment preference for this preview only. Payments are not enabled.",
+    paymentCod: "Cash on Delivery (COD)",
+    paymentMmqr: "MMQR",
+    paymentCodHelp: "Pay on delivery in a future ordering phase.",
+    paymentMmqrHelp: "Merchant QR payment planned for a later phase.",
+    paymentRequired: "Please select COD or MMQR.",
+    paymentCodNoScreenshot:
+      "COD does not require a payment screenshot. No payment is collected in this preview.",
+    paymentQrPlaceholder:
+      "Merchant QR placeholder — not scannable. Do not send payment.",
+    paymentScreenshotLater:
+      "Payment screenshot upload will be implemented in a later phase. Uploads are not available here.",
+    paymentManualVerification:
+      "Future MMQR payments must be manually verified by an admin. A screenshot alone must never automatically confirm payment. No payment is confirmed in this preview.",
     checkoutTitle: "Guest checkout preview",
     checkoutContinue: "Guest checkout preview",
     checkoutBack: "Back to cart",
@@ -200,6 +216,20 @@ export const dictionaries = {
       "ဤပစ္စည်းကို ကြည့်ရှု၍ မရနိုင်ပါ။ ဖယ်ရှားထားခြင်း သို့မဟုတ် လက်ရှိ မဖော်ပြထားခြင်း ဖြစ်နိုင်ပါသည်။",
     description: "အသေးစိတ်ဖော်ပြချက်",
     noDescription: "အသေးစိတ်ဖော်ပြချက် မရှိသေးပါ။",
+    paymentTitle: "ငွေပေးချေမှု နည်းလမ်း",
+    paymentPreview: "ဤအကြိုကြည့်ရှုမှုအတွက်သာ နည်းလမ်းရွေးချယ်ပါ။ ငွေပေးချေမှု မဖွင့်ရသေးပါ။",
+    paymentCod: "ပစ္စည်းရောက်မှ ငွေချေ (COD)",
+    paymentMmqr: "MMQR",
+    paymentCodHelp: "နောင် အော်ဒါတင်နိုင်သည့်အဆင့်တွင် ပစ္စည်းရောက်မှ ငွေချေနိုင်မည်။",
+    paymentMmqrHelp: "ဆိုင်၏ QR ဖြင့် ငွေပေးချေခြင်းကို နောင်အဆင့်တွင် ထည့်သွင်းမည်။",
+    paymentRequired: "COD သို့မဟုတ် MMQR ကို ရွေးချယ်ပါ။",
+    paymentCodNoScreenshot:
+      "COD အတွက် ငွေပေးချေမှု စခရင်ရှော့ မလိုပါ။ ဤအကြိုကြည့်ရှုမှုတွင် ငွေမကောက်ခံပါ။",
+    paymentQrPlaceholder: "ဆိုင်၏ QR ထည့်ရန် နေရာသာ ဖြစ်သည်။ စကင်ဖတ်၍ မရပါ။ ငွေမပို့ပါနှင့်။",
+    paymentScreenshotLater:
+      "ငွေပေးချေမှု စခရင်ရှော့ တင်ခြင်းကို နောင်အဆင့်တွင် ထည့်သွင်းမည်။ ယခု ဖိုင်တင်၍ မရသေးပါ။",
+    paymentManualVerification:
+      "နောင် MMQR ငွေပေးချေမှုများကို အက်ဒမင်က ကိုယ်တိုင် စစ်ဆေးအတည်ပြုရမည်။ စခရင်ရှော့တစ်ခုတည်းဖြင့် ငွေပေးချေမှုကို အလိုအလျောက် အတည်မပြုရပါ။ ဤအကြိုကြည့်ရှုမှုတွင် ငွေပေးချေမှု အတည်မပြုပါ။",
     checkoutTitle: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
     checkoutContinue: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
     checkoutBack: "ဈေးခြင်းသို့ ပြန်သွားရန်",
