@@ -1,44 +1,36 @@
 # UNITSHOP Customer Website
 
-Phase 1 storefront foundation. This repository is independent of the UnitShop Stock Management System.
+Next.js App Router customer catalogue, independent of the separate UnitShop Stock Management System.
 
-## Local development
+## Development and checks
 
-Use Node.js 20.9 or newer (validated with Node 24), then:
+Use Node.js 24 (the test command uses native TypeScript stripping):
 
 ```sh
 npm ci
 npm run dev
-```
-
-Open http://localhost:3000. No environment variables or external services are required.
-
-## Checks
-
-```sh
 npm run lint
 npm run typecheck
 npm run build
+node --experimental-strip-types --test tests/catalog.test.mjs
 ```
 
-`npm start` serves the production build locally. The build uses webpack for predictable execution across environments.
+The existing Supabase client requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the website's existing configuration. No environment files or values are included here. Do not use service-role or secret keys. Admin routes already require these values during production prerendering; absent configuration can block the build.
 
-## Structure
+## Live customer catalogue
 
-- `src/app`: App Router page, root layout, metadata, global styles and favicon.
-- `src/components`: reusable branding and interactive storefront composition.
-- `src/features/catalog`: typed categories and illustrative sample product data.
-- `src/features/cart`, `checkout`, `admin`: documented future feature boundaries; no active implementation.
-- `src/lib/i18n`: English and Myanmar homepage dictionaries.
-- `src/lib/supabase`: documentation only; no integration.
-- `public/images`: small, self-contained SVG placeholder illustrations, no external requests.
+- `src/features/catalog/data.ts`: SELECT-only paginated reads of `categories` and active `products`; explicit public fields, localization, MMK formatting, category filtering and image URL validation.
+- `src/components/storefront.tsx`: bilingual customer page, category cards and filters using database IDs, loading/error/empty states, and manual retry.
+- `src/components/product-card.tsx`: product image, translated name/description with fallback, and MMK price. Missing/broken images show a text fallback; images load lazily from HTTPS public URLs.
+- `src/lib/i18n`: English/Myanmar interface translations. Known foundation categories retain their translated labels; other categories use the database English name because only `categories.name_en` is confirmed by the existing admin implementation.
+- `tests/catalog.test.mjs`: mocked read-only query, pagination, failures, active visibility, category filters, localization and formatting checks. No database access.
 
-## Homepage behavior
+The catalogue loads when the customer opens the page; it is not a Realtime subscription. It never substitutes sample products after failures. Categories use `id,name_en`; products use `id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active`. `is_active` controls catalogue visibility, not a stock quantity claim. No schema, policies, client settings or environment variables are changed.
 
-Responsive navigation, skip link, mobile menu with Escape support, English/Myanmar toggle, category links and sample product filters. Language selection lasts for the current page session and updates the document language. Product imagery and catalogue entries are explicitly labeled as samples. No prices, stock claims or specifications are supplied.
+The category and hero SVG illustrations are decorative; displayed product records and product photos come from the database. Checkout and customer accounts remain unimplemented. Admin pages and the shared Supabase client remain unchanged.
 
-## Scope and next phases
+## Verification limits
 
-There is no shopping cart, checkout, admin access, database, payment integration or deployment configuration. No existing Supabase or Vercel projects are used. Future work should define real catalogue content and image rights, persistent locale routing, cart behavior, guest checkout, admin authorization and a separately approved backend.
+Anonymous public-read access must be validated against the intended website Supabase project in a separately configured Preview. Database errors show a retry message without exposing raw database details. RLS can also silently return an empty result, which cannot be distinguished from an empty catalogue by this client. Do not weaken RLS to make the storefront work: report insufficient permissions for review. Never connect the separate Stock Management System.
 
-SEO title and description are supplied. Search indexing is deliberately disabled with robots metadata during this sample-only foundation; review before a future launch. Have a native Myanmar speaker review translations before launch. No hosting or production connection is configured.
+No deployment is performed by these commands. Search indexing remains disabled in metadata pending launch approval. Native-speaker review of Myanmar copy is recommended before launch.
