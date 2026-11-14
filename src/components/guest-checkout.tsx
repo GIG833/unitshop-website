@@ -33,8 +33,24 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   const cart = useCart();
   const [details, setDetails] = useState<GuestDetails>({ ...EMPTY_GUEST });
   const [errors, setErrors] = useState<GuestErrors>({});
-  const [checked, setChecked] = useState<string | null>(null);
+
   const [attempted, setAttempted] = useState(false);
+  
+const [submitting, setSubmitting] = useState(false);
+const [submitError, setSubmitError] = useState<string | null>(null);
+
+const [orderReceipt, setOrderReceipt] = useState<{
+  order_id: number;
+  total_amount: number;
+  payment_method: "COD" | "MMQR";
+  payment_status: string;
+  order_status: string;
+} | null>(null);
+
+const orderKeyRef = useRef<string | null>(null);
+
+const orderPayloadRef = useRef<string | null>(null);
+
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
   );
@@ -106,17 +122,99 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
       : error === "phone"
         ? t.checkoutPhoneError
         : t.checkoutTooLong;
-  const validationToken = `${signature}:${request}:${paymentMethod ?? ""}`;
+
   function updateField(field: keyof GuestDetails, value: string) {
     const next = { ...details, [field]: value };
     setDetails(next);
-    setChecked(null);
+   
     if (attempted) setErrors(validateGuest(next));
   }
+ 
+async function submitOrder() {
+  if (submitting || orderReceipt || !canValidate) return;
+
+  const validationErrors = validateGuest(details);
+  if (Object.keys(validationErrors).length || !isPaymentMethod(paymentMethod)) {
+    setSubmitError("Please check your checkout information.");
+    return;
+  }
+
+  setSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    const sessionResponse = await fetch("/api/guest-session", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+
+    if (!sessionResponse.ok) {
+      throw new Error("Unable to start guest session.");
+    }
+
+  
+const orderPayload = {
+  customer_name: details.fullName.trim(),
+  customer_phone: details.phone.trim(),
+  customer_city: details.city.trim(),
+  delivery_address: details.address.trim(),
+  delivery_notes: details.notes.trim(),
+  payment_method: paymentMethod,
+  items: cart.entries.map((entry) => ({
+    product_id: entry.productId,
+    quantity: entry.quantity,
+  })),
+};
+
+const payloadSignature = JSON.stringify(orderPayload);
+
+if (
+  orderPayloadRef.current !== payloadSignature ||
+  !orderKeyRef.current
+) {
+  orderKeyRef.current = crypto.randomUUID();
+  orderPayloadRef.current = payloadSignature;
+}
+
+const key = orderKeyRef.current;
+
+
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+  
+body: JSON.stringify({
+  ...orderPayload,
+  idempotency_key: key,
+}),
+
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !result.receipt) {
+      if (response.status === 409) {
+        orderKeyRef.current = null;
+      }
+      throw new Error(result.message || "Unable to place order.");
+    }
+
+    setOrderReceipt(result.receipt);
+  
+  } catch (error) {
+    setSubmitError(
+      error instanceof Error ? error.message : "Unable to place order."
+    );
+  } finally {
+    setSubmitting(false);
+  }
+}
+
   function validate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAttempted(true);
-    setChecked(null);
+    
     const nextErrors = validateGuest(details);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
@@ -131,7 +229,22 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
       formRef.current?.querySelector<HTMLInputElement>("#payment-cod")?.focus();
       return;
     }
-    if (canValidate) setChecked(validationToken);
+    
+
+if (paymentMethod === "mmqr") {
+  setSubmitError(
+    locale === "my"
+      ? "MMQR ငွေပေးချေမှုစနစ် ပြင်ဆင်နေဆဲဖြစ်ပါသည်။"
+      : "MMQR payment is not available yet."
+  );
+  return;
+}
+
+if (canValidate && !submitting && !orderReceipt) {
+  void submitOrder();
+}
+
+
   }
   return (
     <>
@@ -166,7 +279,13 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
           ← {t.checkoutBack}
         </Link>
         <h1 className="cart-title">{t.checkoutTitle}</h1>
-        <p className="checkout-notice">{t.checkoutPreview}</p>
+       
+<p className="checkout-notice">
+  {locale === "my"
+    ? "အချက်အလက်များကို သေချာစစ်ဆေးပြီး Order တင်ပေးပါ။"
+    : "Please review your details before placing your order."}
+</p>
+
         {cart.storageError && (
           <p className="catalog-state" role="alert">
             {t.cartStorageError}
@@ -202,10 +321,13 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
                       field === "address" ? "street-address" : "off"
                     }
                     aria-invalid={!!errors[field]}
-                    aria-describedby={
-                      errors[field] ? `checkout-${field}-error` : undefined
-                    }
-                    onChange={(event) => updateField(field, event.target.value)}
+                 
+aria-describedby={
+  errors[field] ? `checkout-${field}-error` : undefined
+}
+disabled={submitting || orderReceipt !== null}
+onChange={(event) => updateField(field, event.target.value)}
+
                   />
                 ) : (
                   <input
@@ -226,6 +348,9 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
                     aria-describedby={
                       errors[field] ? `checkout-${field}-error` : undefined
                     }
+                   
+disabled={submitting || orderReceipt !== null}
+
                     onChange={(event) => updateField(field, event.target.value)}
                   />
                 )}
@@ -243,10 +368,14 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
               method={paymentMethod}
               locale={locale}
               invalid={attempted && !isPaymentMethod(paymentMethod)}
-              onChange={(method) => {
-                setPaymentMethod(method);
-                setChecked(null);
-              }}
+           
+onChange={(method) => {
+  if (submitting || orderReceipt !== null) return;
+
+  setPaymentMethod(method);
+ 
+}}
+
             />
             {attempted && Object.keys(errors).length > 0 && (
               <p role="alert" className="checkout-field-error">
@@ -256,15 +385,69 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
             <button
               className="button-primary"
               type="submit"
-              disabled={!canValidate}
+              
+disabled={!canValidate || submitting || orderReceipt !== null}
+
             >
-              {t.checkoutValidate}
+           
+{submitting
+  ? locale === "my"
+    ? "Order တင်နေပါသည်..."
+    : "Placing Order..."
+  : locale === "my"
+    ? "Order တင်မည်"
+    : "Place Order"}
+
             </button>
-            <p role="status" className="checkout-validation">
-              {checked === validationToken && canValidate
-                ? t.checkoutValidated
-                : ""}
-            </p>
+            
+{submitError && (
+  <p role="alert" className="checkout-field-error">
+    {submitError}
+  </p>
+)}
+
+{submitting && (
+  <p role="status" className="checkout-validation">
+    {locale === "my"
+      ? "Order တင်နေပါသည်။ ခဏစောင့်ပေးပါ။"
+      : "Placing your order. Please wait..."}
+  </p>
+)}
+
+{orderReceipt && (
+  <div role="status" className="catalog-state">
+    <h2>
+      {locale === "my"
+        ? "Order တင်ခြင်း အောင်မြင်ပါသည်"
+        : "Order placed successfully"}
+    </h2>
+    <p>
+      Order Number: <strong>#{orderReceipt.order_id}</strong>
+    </p>
+    <p>
+      Total: <strong>{formatPrice(orderReceipt.total_amount, locale)}</strong>
+    </p>
+    <p>
+      Payment: <strong>{orderReceipt.payment_method}</strong>
+    </p>
+    
+<p>
+  Payment Status:{" "}
+  <strong>
+    {orderReceipt.payment_status === "pending"
+      ? locale === "my"
+        ? "ငွေပေးချေမှု စစ်ဆေးရန် ကျန်ရှိနေသည်"
+        : "Pending verification"
+      : orderReceipt.payment_status}
+  </strong>
+</p>
+
+    <p>
+      Status: <strong>{orderReceipt.order_status}</strong>
+    </p>
+  </div>
+)}
+
           </form>
           <aside
             className="checkout-summary"
@@ -284,7 +467,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
                   type="button"
                   className="button-primary"
                   onClick={() => {
-                    setChecked(null);
+                   
                     setCatalogue({ signature, status: "loading" });
                     setRequest((value) => value + 1);
                   }}
@@ -374,7 +557,9 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
       <footer className="footer">
         <div className="container footer-bottom">
           <span>UNITSHOP</span>
-          <span>{t.checkoutPreview}</span>
+         
+<span>© UNITSHOP</span>
+
         </div>
       </footer>
     </>
