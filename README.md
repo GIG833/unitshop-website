@@ -55,4 +55,8 @@ See `src/features/cart/README.md` for implementation boundaries. `tests/cart.tes
 
 The cart links to `/checkout`, which shows current active product details and a products-only order total alongside required guest delivery fields. Myanmar/English switching preserves entered form values. Empty carts, catalogue errors and unavailable items block review, with retry and links back to edit the cart.
 
-**Validate details** performs client-side checks only. Customer information is not submitted, logged or persisted by the application. No order, login, COD/MMQR or payment flow is implemented, and delivery fees are not fabricated. See `src/features/checkout/README.md` for validation, privacy and verification boundaries, and `tests/checkout.test.mjs` for coverage.
+**Validate details** performs client-side checks only. Customer information is not submitted, logged or persisted by the application. No order submission, customer login or payment processing is implemented, and delivery fees are not fabricated. See `src/features/checkout/README.md` for validation, privacy and verification boundaries, and `tests/checkout.test.mjs` for coverage.
+
+## Payment selection preview
+
+Guest checkout offers only COD and MMQR as an in-memory preference, required by the local validation action. COD needs no screenshot. MMQR displays a non-scannable QR placeholder, future-upload guidance and the requirement for manual admin verification; screenshots must never automatically confirm payment. This adds no real QR, file upload, payment, order or confirmation functionality. Existing customer validation and cart checks remain in place. See the checkout feature documentation and payment-selection tests.
