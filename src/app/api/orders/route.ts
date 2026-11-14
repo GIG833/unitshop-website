@@ -81,6 +81,11 @@ export async function POST(request: NextRequest) {
   if (!payment_method) {
     return fail("Invalid payment method", 400);
   }
+  
+if (payment_method === "MMQR") {
+  return fail("MMQR payment is not available yet.", 403);
+}
+
 
   if (!Array.isArray(data.items) ||
       data.items.length < 1 ||
