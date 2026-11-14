@@ -39,6 +39,14 @@ No deployment is performed by these commands. Search indexing remains disabled i
 
 Storefront cards link to `/products/[id]?lang=en` (or `my`). The customer detail page uses the existing public Supabase client and an explicit SELECT filtered by both the positive numeric product ID and `is_active = true`. It does not query or mutate admin data, policies, schema or configuration.
 
-The responsive page displays a public HTTPS image, localized name and description (with existing English/Myanmar fallback), and MMK price. Loading, safe error/retry, missing/inactive product, missing-description and broken-image states are included. Back to Products preserves the selected language through the `lang` query parameter. No cart or checkout is implemented.
+The responsive page displays a public HTTPS image, localized name and description (with existing English/Myanmar fallback), and MMK price. Loading, safe error/retry, missing/inactive product, missing-description and broken-image states are included. Back to Products preserves the selected language through the `lang` query parameter. A local shopping cart is available in Phase 2; checkout is not implemented.
 
 Not-found is a customer-side display state, not a server-generated HTTP 404. Product visibility is checked on page load/retry; there is no Realtime subscription. Existing RLS remains the security boundary. Supabase configuration and anonymous reads still require verification in a configured Preview; this environment has no configured public variables, and the unchanged admin routes can block a full build during prerendering.
+
+## Shopping cart (Phase 2)
+
+Product details include Add to Cart and View cart; the storefront header links to `/cart`. Customers can change quantities, remove products and view current MMK prices, line totals and the product total. The Myanmar/English language switch and navigation retain the selected language.
+
+The cart stores only validated IDs/quantities in browser localStorage, with a limit of 99 per product and 100 distinct products. It reloads active product data through the existing SELECT-only Supabase client and rechecks active status before adds/increases. Inactive or missing products remain removable and are excluded from totals. Query errors preserve saved IDs while hiding unverified totals; storage errors explicitly warn about limited persistence. There is no stock reservation, checkout, payment, backend cart or cross-device synchronization.
+
+See `src/features/cart/README.md` for implementation boundaries. `tests/cart.test.mjs` covers active-only adds, quantity limits, removal, persistence round-trips, malformed storage, storage failures, totals and translation coverage. Browser interaction and live public-read permissions remain unverified in this environment. The build compiles and typechecks, but the unchanged `/admin` prerender still fails without the existing Supabase public environment variables. No configuration is added or changed to bypass that failure.

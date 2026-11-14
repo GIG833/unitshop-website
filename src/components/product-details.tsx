@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Brand } from "./brand";
+import { AddToCart } from "./add-to-cart";
 import {
   formatPrice,
   localizedText,
@@ -145,6 +146,11 @@ export function ProductDetails({
                 <p className="detail-price">
                   {formatPrice(product.price, locale)}
                 </p>
+                <AddToCart
+                  key={product.id}
+                  productId={product.id}
+                  locale={locale}
+                />
                 <section aria-labelledby="description-heading">
                   <h2 id="description-heading">{t.description}</h2>
                   <p className="product-description">

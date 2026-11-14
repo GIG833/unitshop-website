@@ -70,6 +70,30 @@ export const dictionaries = {
       "This product is not available to view. It may have been removed or is no longer active.",
     description: "Description",
     noDescription: "No description is available yet.",
+    cartTitle: "Shopping cart",
+    addToCart: "Add to Cart",
+    viewCart: "View cart",
+    cartChecking: "Checking product…",
+    cartAdded: "Added to your cart.",
+    cartUnavailable: "This product is no longer available.",
+    cartError: "We couldn’t verify the products. Please try again.",
+    cartStorageError:
+      "Your cart could not be loaded or saved on this device. Changes may last only for this visit. Check your browser storage settings.",
+    cartLimit:
+      "Cart limit reached: up to 99 of each product and 100 different products.",
+    cartLoading: "Loading your cart…",
+    cartEmpty: "Your cart is empty. Explore products to get started.",
+    cartSaved:
+      "Your saved items have not been removed. Prices and totals are hidden until products can be verified.",
+    cartRemove: "Remove",
+    cartQuantity: "Quantity",
+    cartDecrease: "Decrease quantity",
+    cartIncrease: "Increase quantity",
+    cartTotal: "Product total",
+    cartExcluded:
+      "Unavailable products are excluded from this total. Please remove them from your cart.",
+    cartNoCheckout:
+      "This cart does not reserve stock. Checkout and payments are not available yet.",
   },
   my: {
     preview: "သင့်ချိတ်ဆက်မှုအသစ်အတွက် အကြိုမိတ်ဆက်",
@@ -146,5 +170,29 @@ export const dictionaries = {
       "ဤပစ္စည်းကို ကြည့်ရှု၍ မရနိုင်ပါ။ ဖယ်ရှားထားခြင်း သို့မဟုတ် လက်ရှိ မဖော်ပြထားခြင်း ဖြစ်နိုင်ပါသည်။",
     description: "အသေးစိတ်ဖော်ပြချက်",
     noDescription: "အသေးစိတ်ဖော်ပြချက် မရှိသေးပါ။",
+    cartTitle: "ဈေးခြင်းတောင်း",
+    addToCart: "ဈေးခြင်းထဲသို့ ထည့်ရန်",
+    viewCart: "ဈေးခြင်းကို ကြည့်ရန်",
+    cartChecking: "ပစ္စည်းကို စစ်ဆေးနေသည်…",
+    cartAdded: "ဈေးခြင်းထဲသို့ ထည့်ပြီးပါပြီ။",
+    cartUnavailable: "ဤပစ္စည်းကို လက်ရှိ မရရှိနိုင်ပါ။",
+    cartError: "ပစ္စည်းများကို စစ်ဆေး၍ မရပါ။ ထပ်မံကြိုးစားပါ။",
+    cartStorageError:
+      "ဤစက်တွင် ဈေးခြင်းကို ဖတ်ခြင်း သို့မဟုတ် သိမ်းခြင်း မအောင်မြင်ပါ။ ယခုကြည့်ရှုနေစဉ်အတွင်းသာ သိမ်းထားနိုင်ပါသည်။ ဘရောက်ဇာ၏ သိမ်းဆည်းမှု ဆက်တင်များကို စစ်ဆေးပါ။",
+    cartLimit:
+      "ဈေးခြင်း ကန့်သတ်ချက် ပြည့်သွားပါပြီ။ ပစ္စည်းတစ်မျိုးလျှင် ၉၉ ခုနှင့် ပစ္စည်းအမျိုးအစား ၁၀၀ အထိသာ ထည့်နိုင်ပါသည်။",
+    cartLoading: "ဈေးခြင်းကို ရယူနေသည်…",
+    cartEmpty: "ဈေးခြင်းထဲတွင် ပစ္စည်းမရှိသေးပါ။ ပစ္စည်းများကို လေ့လာပြီး စတင်ထည့်ပါ။",
+    cartSaved:
+      "သိမ်းထားသော ပစ္စည်းများကို မဖယ်ရှားထားပါ။ စစ်ဆေးပြီးသည်အထိ ဈေးနှုန်းနှင့် စုစုပေါင်းကို မဖော်ပြပါ။",
+    cartRemove: "ဖယ်ရှားရန်",
+    cartQuantity: "အရေအတွက်",
+    cartDecrease: "အရေအတွက် လျှော့ရန်",
+    cartIncrease: "အရေအတွက် တိုးရန်",
+    cartTotal: "ပစ္စည်း စုစုပေါင်းတန်ဖိုး",
+    cartExcluded:
+      "မရရှိနိုင်သော ပစ္စည်းများကို စုစုပေါင်းတွင် မထည့်ထားပါ။ ဈေးခြင်းမှ ဖယ်ရှားပေးပါ။",
+    cartNoCheckout:
+      "ဈေးခြင်းထဲသို့ ထည့်ခြင်းဖြင့် ပစ္စည်းကို ကြိုတင်သီးသန့် မထားပါ။ အော်ဒါတင်ခြင်းနှင့် ငွေပေးချေခြင်းကို မရရှိနိုင်သေးပါ။",
   },
 } as const;
