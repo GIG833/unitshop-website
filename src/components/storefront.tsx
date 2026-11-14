@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Brand } from "./brand";
 import {
@@ -86,6 +87,9 @@ export function Storefront({
             <a href="#about">{t.about}</a>
           </nav>
           <div className="header-actions">
+            <Link className="cart-nav" href={`/cart?lang=${locale}`}>
+              {t.cartTitle}
+            </Link>
             <div
               className="language-switch"
               role="group"
