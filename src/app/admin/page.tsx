@@ -72,6 +72,24 @@ export default function AdminDashboard() {
           <p className="mt-2 text-slate-500">
             Product management features coming soon.
           </p>
+          
+<div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+  <h2 className="text-xl font-semibold">
+    Order Management
+  </h2>
+
+  <p className="mt-2 text-slate-500">
+    View and manage customer orders.
+  </p>
+
+  <a
+    href="/admin/orders"
+    className="mt-4 inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+  >
+    View Orders
+  </a>
+</div>
+
         </div>
       </div>
     </main>
