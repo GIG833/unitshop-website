@@ -280,6 +280,14 @@ function CartContents({
               <p className="cart-disclaimer">{t.cartExcluded}</p>
             )}
             <p className="cart-disclaimer">{t.cartNoCheckout}</p>
+            {!products.some((product) => !product) && pending === null && (
+              <Link
+                className="button-primary checkout-link"
+                href={`/checkout?lang=${locale}`}
+              >
+                {t.checkoutContinue}
+              </Link>
+            )}
           </aside>
         </>
       )}
