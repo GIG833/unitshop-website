@@ -809,3 +809,38 @@ html[lang="my"] .brand {
     transition: none !important;
   }
 }
+
+/* Live catalogue states retain the storefront's existing palette and layout. */
+.catalog-state {
+  padding: 32px 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.catalog-state .button-primary {
+  margin-top: 16px;
+  border: 0;
+  font-size: 13px;
+}
+.image-unavailable {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.product-copy .product-price {
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 700;
+  border: 0;
+  padding-top: 0;
+  margin-bottom: 10px;
+}
+.product-description {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.product-copy h3 {
+  overflow-wrap: anywhere;
+}

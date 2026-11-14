@@ -2,7 +2,12 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Brand } from "./brand";
-import { categories, products, type Category } from "@/features/catalog/data";
+import {
+  filterProducts,
+  loadCatalog,
+  type Catalog,
+} from "@/features/catalog/data";
+import { ProductCard } from "./product-card";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 
 function Arrow() {
@@ -11,11 +16,48 @@ function Arrow() {
 export function Storefront() {
   const [locale, setLocale] = useState<Locale>("en");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [filter, setFilter] = useState<Category | "all">("all");
+  const [filter, setFilter] = useState<number | "all">("all");
   const t = dictionaries[locale];
-  const shown = products.filter(
-    (p) => filter === "all" || p.category === filter,
+  const [catalog, setCatalog] = useState<Catalog>({
+    categories: [],
+    products: [],
+  });
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
   );
+  const [request, setRequest] = useState(0);
+  const { categories, products } = catalog;
+  const shown = filterProducts(products, filter);
+  const knownCategories = ["mifi", "routers", "wifi cards", "cctv", "gadgets"];
+  const categoryIndex = (name: string) =>
+    knownCategories.indexOf(name.trim().toLowerCase());
+  const categoryName = (category: Catalog["categories"][number]) => {
+    const index = categoryIndex(category.name_en);
+    return index >= 0 ? t.categoryNames[index] : category.name_en;
+  };
+  useEffect(() => {
+    let active = true;
+    async function initialize() {
+      try {
+        // Resolve configuration inside the error boundary, including missing public variables.
+        const { supabase } = await import("@/lib/supabase/client");
+        const result = await loadCatalog(supabase);
+        if (active) {
+          setCatalog(result);
+          setStatus("ready");
+        }
+      } catch {
+        if (active) {
+          setCatalog({ categories: [], products: [] });
+          setStatus("error");
+        }
+      }
+    }
+    void initialize();
+    return () => {
+      active = false;
+    };
+  }, [request]);
   useEffect(() => {
     document.documentElement.lang = locale === "my" ? "my" : "en";
   }, [locale]);
@@ -162,24 +204,28 @@ export function Storefront() {
             <p>{t.categoryIntro}</p>
           </div>
           <div className="category-grid">
-            {categories.map((category, i) => (
+            {categories.map((category) => (
               <a
                 className="category-card"
-                key={category}
+                key={category.id}
                 href="#featured"
-                onClick={() => setFilter(category)}
+                onClick={() => setFilter(category.id)}
               >
                 <div className="category-card-top">
                   <Image
-                    src={`/images/device-${i}.svg`}
+                    src={`/images/device-${Math.max(0, categoryIndex(category.name_en))}.svg`}
                     width={88}
                     height={76}
                     alt=""
                   />
                   <Arrow />
                 </div>
-                <h3>{t.categoryNames[i]}</h3>
-                <p>{t.categoryDescriptions[i]}</p>
+                <h3>{categoryName(category)}</h3>
+                <p>
+                  {categoryIndex(category.name_en) >= 0
+                    ? t.categoryDescriptions[categoryIndex(category.name_en)]
+                    : t.shop}
+                </p>
               </a>
             ))}
           </div>
@@ -198,44 +244,74 @@ export function Storefront() {
               <p>{t.featuredIntro}</p>
             </div>
             <div className="filters" role="group" aria-label={t.filter}>
-              {(["all", ...categories] as const).map((category, i) => (
+              <button
+                aria-pressed={filter === "all"}
+                onClick={() => setFilter("all")}
+              >
+                {t.all}
+              </button>
+              {categories.map((category) => (
                 <button
-                  key={category}
-                  aria-pressed={filter === category}
-                  onClick={() => setFilter(category)}
+                  key={category.id}
+                  aria-pressed={filter === category.id}
+                  onClick={() => setFilter(category.id)}
                 >
-                  {i === 0 ? t.all : t.categoryNames[i - 1]}
+                  {categoryName(category)}
                 </button>
               ))}
             </div>
-            <p className="sr-only" role="status">
-              {shown.length} {t.results}
-            </p>
-            <div className="product-grid">
-              {shown.map((product) => {
-                const i = categories.indexOf(product.category);
-                return (
-                  <article key={product.id} className="product-card">
-                    <div className="product-image">
-                      <span className="sample-label">{t.sample}</span>
-                      <Image
-                        src={product.image}
-                        width={240}
-                        height={190}
-                        alt={`${t.categoryNames[i]} — ${t.placeholder}`}
-                      />
-                      <span className="placeholder-label">{t.placeholder}</span>
+            <div aria-busy={status === "loading"}>
+              {status === "loading" && (
+                <p className="catalog-state" role="status">
+                  {t.loading}
+                </p>
+              )}
+              {status === "error" && (
+                <div className="catalog-state" role="alert">
+                  <p>{t.loadError}</p>
+                  <button
+                    className="button-primary"
+                    onClick={() => {
+                      setStatus("loading");
+                      setFilter("all");
+                      setRequest((value) => value + 1);
+                    }}
+                  >
+                    {t.retry}
+                  </button>
+                </div>
+              )}
+              {status === "ready" && (
+                <>
+                  <p className="sr-only" role="status">
+                    {shown.length} {t.results}
+                  </p>
+                  {shown.length === 0 ? (
+                    <p className="catalog-state" role="status">
+                      {filter === "all" ? t.empty : t.emptyCategory}
+                    </p>
+                  ) : (
+                    <div className="product-grid">
+                      {shown.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          locale={locale}
+                          noImage={t.noImage}
+                          category={(() => {
+                            const category = categories.find(
+                              (category) => category.id === product.category_id,
+                            );
+                            return category
+                              ? categoryName(category)
+                              : t.uncategorized;
+                          })()}
+                        />
+                      ))}
                     </div>
-                    <div className="product-copy">
-                      <p className="product-category">{t.categoryNames[i]}</p>
-                      <h3>
-                        {t.categoryNames[i]} · {t.sampleName}
-                      </h3>
-                      <p>{t.details}</p>
-                    </div>
-                  </article>
-                );
-              })}
+                  )}
+                </>
+              )}
             </div>
             <aside className="sample-notice">
               <span className="notice-icon" aria-hidden="true">
