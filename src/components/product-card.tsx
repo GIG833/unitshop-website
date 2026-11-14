@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import {
   formatPrice,
   localizedText,
@@ -27,30 +28,36 @@ export function ProductCard({
   );
   return (
     <article className="product-card">
-      <div className="product-image">
-        {product.image_url && failedImage !== product.image_url ? (
-          // Existing Supabase public image URLs need no new Next.js remote-host configuration.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.image_url}
-            alt={name}
-            width={240}
-            height={190}
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            onError={() => setFailedImage(product.image_url)}
-          />
-        ) : (
-          <span className="image-unavailable">{noImage}</span>
-        )}
-      </div>
-      <div className="product-copy">
-        <p className="product-category">{category}</p>
-        <h3>{name}</h3>
-        <p className="product-price">{formatPrice(product.price, locale)}</p>
-        {description && <p className="product-description">{description}</p>}
-      </div>
+      <Link
+        className="product-card-link"
+        href={`/products/${product.id}?lang=${locale}`}
+        prefetch={false}
+      >
+        <div className="product-image">
+          {product.image_url && failedImage !== product.image_url ? (
+            // Existing Supabase public image URLs need no new Next.js remote-host configuration.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.image_url}
+              alt={name}
+              width={240}
+              height={190}
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+              onError={() => setFailedImage(product.image_url)}
+            />
+          ) : (
+            <span className="image-unavailable">{noImage}</span>
+          )}
+        </div>
+        <div className="product-copy">
+          <p className="product-category">{category}</p>
+          <h3>{name}</h3>
+          <p className="product-price">{formatPrice(product.price, locale)}</p>
+          {description && <p className="product-description">{description}</p>}
+        </div>
+      </Link>
     </article>
   );
 }

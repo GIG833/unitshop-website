@@ -13,8 +13,12 @@ import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
-export function Storefront() {
-  const [locale, setLocale] = useState<Locale>("en");
+export function Storefront({
+  initialLocale = "en",
+}: {
+  initialLocale?: Locale;
+}) {
+  const [locale, setLocale] = useState<Locale>(initialLocale);
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<number | "all">("all");
   const t = dictionaries[locale];

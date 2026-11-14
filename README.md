@@ -12,7 +12,7 @@ npm run dev
 npm run lint
 npm run typecheck
 npm run build
-node --experimental-strip-types --test tests/catalog.test.mjs
+node --experimental-strip-types --test tests/*.test.mjs
 ```
 
 The existing Supabase client requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the website's existing configuration. No environment files or values are included here. Do not use service-role or secret keys. Admin routes already require these values during production prerendering; absent configuration can block the build.
@@ -34,3 +34,11 @@ The category and hero SVG illustrations are decorative; displayed product record
 Anonymous public-read access must be validated against the intended website Supabase project in a separately configured Preview. Database errors show a retry message without exposing raw database details. RLS can also silently return an empty result, which cannot be distinguished from an empty catalogue by this client. Do not weaken RLS to make the storefront work: report insufficient permissions for review. Never connect the separate Stock Management System.
 
 No deployment is performed by these commands. Search indexing remains disabled in metadata pending launch approval. Native-speaker review of Myanmar copy is recommended before launch.
+
+## Product details (Phase 1)
+
+Storefront cards link to `/products/[id]?lang=en` (or `my`). The customer detail page uses the existing public Supabase client and an explicit SELECT filtered by both the positive numeric product ID and `is_active = true`. It does not query or mutate admin data, policies, schema or configuration.
+
+The responsive page displays a public HTTPS image, localized name and description (with existing English/Myanmar fallback), and MMK price. Loading, safe error/retry, missing/inactive product, missing-description and broken-image states are included. Back to Products preserves the selected language through the `lang` query parameter. No cart or checkout is implemented.
+
+Not-found is a customer-side display state, not a server-generated HTTP 404. Product visibility is checked on page load/retry; there is no Realtime subscription. Existing RLS remains the security boundary. Supabase configuration and anonymous reads still require verification in a configured Preview; this environment has no configured public variables, and the unchanged admin routes can block a full build during prerendering.

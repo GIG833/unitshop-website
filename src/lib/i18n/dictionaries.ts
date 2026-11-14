@@ -61,6 +61,15 @@ export const dictionaries = {
     emptyCategory: "No products are currently visible in this category.",
     noImage: "Image unavailable",
     uncategorized: "Other products",
+    backToProducts: "Back to Products",
+    productDetails: "Product details",
+    productLoading: "Loading product…",
+    productError: "We couldn’t load this product. Please try again.",
+    productNotFound: "Product not found",
+    productNotFoundBody:
+      "This product is not available to view. It may have been removed or is no longer active.",
+    description: "Description",
+    noDescription: "No description is available yet.",
   },
   my: {
     preview: "သင့်ချိတ်ဆက်မှုအသစ်အတွက် အကြိုမိတ်ဆက်",
@@ -128,5 +137,14 @@ export const dictionaries = {
     emptyCategory: "ဤအမျိုးအစားတွင် လက်ရှိ ကြည့်ရှုနိုင်သော ပစ္စည်းများ မရှိသေးပါ။",
     noImage: "ပုံ မရရှိနိုင်ပါ",
     uncategorized: "အခြားပစ္စည်းများ",
+    backToProducts: "ပစ္စည်းစာရင်းသို့ ပြန်သွားရန်",
+    productDetails: "ပစ္စည်းအသေးစိတ်",
+    productLoading: "ပစ္စည်းကို ရယူနေသည်…",
+    productError: "ဤပစ္စည်းကို မရယူနိုင်ပါ။ ထပ်မံကြိုးစားပါ။",
+    productNotFound: "ပစ္စည်း မတွေ့ပါ",
+    productNotFoundBody:
+      "ဤပစ္စည်းကို ကြည့်ရှု၍ မရနိုင်ပါ။ ဖယ်ရှားထားခြင်း သို့မဟုတ် လက်ရှိ မဖော်ပြထားခြင်း ဖြစ်နိုင်ပါသည်။",
+    description: "အသေးစိတ်ဖော်ပြချက်",
+    noDescription: "အသေးစိတ်ဖော်ပြချက် မရှိသေးပါ။",
   },
 } as const;

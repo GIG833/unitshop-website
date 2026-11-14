@@ -51,32 +51,7 @@ export async function loadCatalog(
   });
   const products = productRows
     .filter((row) => row.is_active === true)
-    .map((row) => {
-      const price = row.price;
-      if (
-        typeof row.id !== "number" ||
-        typeof row.name_en !== "string" ||
-        typeof row.category_id !== "number" ||
-        typeof price !== "number" ||
-        !Number.isFinite(price) ||
-        price < 0
-      ) {
-        throw new Error("Invalid product data.");
-      }
-      return {
-        id: row.id,
-        name_en: row.name_en,
-        category_id: row.category_id,
-        price,
-        name_mm: typeof row.name_mm === "string" ? row.name_mm : null,
-        description_en:
-          typeof row.description_en === "string" ? row.description_en : null,
-        description_mm:
-          typeof row.description_mm === "string" ? row.description_mm : null,
-        image_url: safeImageUrl(row.image_url),
-        is_active: true,
-      };
-    });
+    .map(parseProduct);
   return { categories, products };
 }
 
@@ -112,4 +87,59 @@ export function filterProducts(
 }
 export function formatPrice(price: number, locale: "en" | "my") {
   return `${new Intl.NumberFormat(locale === "my" ? "my-MM" : "en-US", { maximumFractionDigits: 2 }).format(price)} MMK`;
+}
+
+// Shared validation keeps list and detail views consistent without inventing values.
+function parseProduct(row: Record<string, unknown>): Product {
+  const price = row.price;
+  if (
+    typeof row.id !== "number" ||
+    typeof row.name_en !== "string" ||
+    typeof row.category_id !== "number" ||
+    typeof price !== "number" ||
+    !Number.isFinite(price) ||
+    price < 0
+  ) {
+    throw new Error("Invalid product data.");
+  }
+  return {
+    id: row.id,
+    name_en: row.name_en,
+    category_id: row.category_id,
+    price,
+    name_mm: typeof row.name_mm === "string" ? row.name_mm : null,
+    description_en:
+      typeof row.description_en === "string" ? row.description_en : null,
+    description_mm:
+      typeof row.description_mm === "string" ? row.description_mm : null,
+    image_url: safeImageUrl(row.image_url),
+    is_active: true,
+  };
+}
+
+export function parseProductId(value: string): number | null {
+  if (!/^[1-9]\d*$/.test(value)) return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) ? id : null;
+}
+
+export async function loadProduct(
+  client: Pick<SupabaseClient, "from">,
+  rawId: string,
+): Promise<Product | null> {
+  const id = parseProductId(rawId);
+  if (id === null) return null;
+  const { data, error } = await client
+    .from("products")
+    .select(
+      "id,name_en,name_mm,price,category_id,description_en,description_mm,image_url,is_active",
+    )
+    .eq("id", id)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (error) throw new Error("Product could not be loaded.");
+  if (!data) return null;
+  // Defense in depth: never display inactive or mismatched records from a response.
+  if (data.is_active !== true || data.id !== id) return null;
+  return parseProduct(data);
 }
