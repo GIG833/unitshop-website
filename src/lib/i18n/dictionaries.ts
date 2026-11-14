@@ -70,6 +70,36 @@ export const dictionaries = {
       "This product is not available to view. It may have been removed or is no longer active.",
     description: "Description",
     noDescription: "No description is available yet.",
+    checkoutTitle: "Guest checkout preview",
+    checkoutContinue: "Guest checkout preview",
+    checkoutBack: "Back to cart",
+    checkoutPreview:
+      "Preview only: no order is created, no details are sent, and no payment is collected.",
+    checkoutGuest: "Delivery details",
+    checkoutPrivacy:
+      "No account needed. Details stay on this page only and are not saved when you leave or refresh.",
+    checkoutFullName: "Full Name",
+    checkoutPhone: "Phone Number",
+    checkoutCity: "City / Township",
+    checkoutAddress: "Delivery Address",
+    checkoutNotes: "Delivery Notes",
+    checkoutOptional: "optional",
+    checkoutRequired: "Please fill in this required field.",
+    checkoutPhoneError:
+      "Enter a phone number with 7–15 digits, using an optional + country code. English or Myanmar digits are accepted.",
+    checkoutTooLong: "This value is too long. Please shorten it.",
+    checkoutFixErrors: "Please correct the highlighted fields.",
+    checkoutValidate: "Validate details",
+    checkoutValidated:
+      "The details pass local validation. No order has been placed and your information has not been sent.",
+    checkoutSummary: "Order summary",
+    checkoutUnavailable:
+      "Some products are unavailable. Return to your cart to remove them before checking the details. No order total is shown until all items can be verified.",
+    checkoutTotal: "Order total (products only)",
+    checkoutFees:
+      "Delivery fees are not calculated in this preview. Prices reflect the latest successful product check and may change.",
+    checkoutEach: "each",
+    checkoutEditCart: "Review or edit cart",
     cartTitle: "Shopping cart",
     addToCart: "Add to Cart",
     viewCart: "View cart",
@@ -170,6 +200,36 @@ export const dictionaries = {
       "ဤပစ္စည်းကို ကြည့်ရှု၍ မရနိုင်ပါ။ ဖယ်ရှားထားခြင်း သို့မဟုတ် လက်ရှိ မဖော်ပြထားခြင်း ဖြစ်နိုင်ပါသည်။",
     description: "အသေးစိတ်ဖော်ပြချက်",
     noDescription: "အသေးစိတ်ဖော်ပြချက် မရှိသေးပါ။",
+    checkoutTitle: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
+    checkoutContinue: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
+    checkoutBack: "ဈေးခြင်းသို့ ပြန်သွားရန်",
+    checkoutPreview:
+      "အကြိုကြည့်ရှုမှုသာ ဖြစ်သည်။ အော်ဒါ မဖန်တီးပါ၊ အချက်အလက် မပို့ပါ၊ ငွေမကောက်ခံပါ။",
+    checkoutGuest: "ပို့ဆောင်ရန် အချက်အလက်များ",
+    checkoutPrivacy:
+      "အကောင့်မလိုပါ။ အချက်အလက်များကို ဤစာမျက်နှာတွင်သာ ထားရှိပြီး ထွက်သွားခြင်း သို့မဟုတ် ပြန်ဖွင့်ခြင်းပြုပါက မသိမ်းထားပါ။",
+    checkoutFullName: "အမည်အပြည့်အစုံ",
+    checkoutPhone: "ဖုန်းနံပါတ်",
+    checkoutCity: "မြို့ / မြို့နယ်",
+    checkoutAddress: "ပို့ဆောင်ရမည့် လိပ်စာ",
+    checkoutNotes: "ပို့ဆောင်ရန် မှတ်ချက်များ",
+    checkoutOptional: "မဖြည့်လည်းရပါသည်",
+    checkoutRequired: "ဤလိုအပ်သော အချက်အလက်ကို ဖြည့်ပါ။",
+    checkoutPhoneError:
+      "ဂဏန်း ၇ လုံးမှ ၁၅ လုံးပါ ဖုန်းနံပါတ်ကို ဖြည့်ပါ။ + နှင့် နိုင်ငံကုဒ် ထည့်နိုင်ပါသည်။ အင်္ဂလိပ် သို့မဟုတ် မြန်မာဂဏန်းများကို အသုံးပြုနိုင်ပါသည်။",
+    checkoutTooLong: "အချက်အလက် ရှည်လွန်းပါသည်။ လျှော့ရေးပေးပါ။",
+    checkoutFixErrors: "ဖော်ပြထားသော အမှားများကို ပြင်ဆင်ပါ။",
+    checkoutValidate: "အချက်အလက် စစ်ဆေးရန်",
+    checkoutValidated:
+      "အချက်အလက်များသည် စာမျက်နှာပေါ် စစ်ဆေးမှုကို အောင်မြင်ပါသည်။ အော်ဒါ မတင်ရသေးပါ၊ သင့်အချက်အလက်ကို မပို့ထားပါ။",
+    checkoutSummary: "အော်ဒါ အကျဉ်းချုပ်",
+    checkoutUnavailable:
+      "အချို့ပစ္စည်းများကို မရရှိနိုင်ပါ။ အချက်အလက်မစစ်ဆေးမီ ဈေးခြင်းသို့ ပြန်၍ ဖယ်ရှားပါ။ ပစ္စည်းအားလုံးကို စစ်ဆေးနိုင်သည်အထိ စုစုပေါင်းကို မဖော်ပြပါ။",
+    checkoutTotal: "စုစုပေါင်း (ပစ္စည်းတန်ဖိုးသာ)",
+    checkoutFees:
+      "ဤအကြိုကြည့်ရှုမှုတွင် ပို့ဆောင်ခ မတွက်ထားပါ။ ဈေးနှုန်းများသည် နောက်ဆုံးစစ်ဆေးမှုအချိန်အတိုင်း ဖြစ်ပြီး ပြောင်းလဲနိုင်ပါသည်။",
+    checkoutEach: "တစ်ခုလျှင်",
+    checkoutEditCart: "ဈေးခြင်းကို ပြန်ကြည့်ရန် / ပြင်ရန်",
     cartTitle: "ဈေးခြင်းတောင်း",
     addToCart: "ဈေးခြင်းထဲသို့ ထည့်ရန်",
     viewCart: "ဈေးခြင်းကို ကြည့်ရန်",
