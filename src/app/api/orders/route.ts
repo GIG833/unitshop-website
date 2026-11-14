@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -151,11 +151,13 @@ export async function POST(request: NextRequest) {
 
   const requestHash = hash(JSON.stringify(order));
 
-  let guest = request.cookies.get(COOKIE_NAME)?.value;
+ 
+const guest = request.cookies.get(COOKIE_NAME)?.value;
 
-  if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
-    guest = randomBytes(32).toString("hex");
-  }
+if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
+  return fail("Guest session required", 401);
+}
+
 
   const scopeHash = hash(guest);
   const responseCookie = guest;
