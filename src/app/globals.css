@@ -515,6 +515,49 @@ h2 {
 .footer-top > .text-link {
   font-size: 11px;
 }
+.footer-contact {
+  border-top: 1px solid var(--line);
+  padding-block: 24px;
+}
+.footer-contact h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  letter-spacing: 0;
+}
+.footer-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin: 0;
+}
+.footer-contact-grid dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.footer-contact-grid dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.footer-contact-grid a,
+.footer-contact-grid dd > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.footer-contact-grid a {
+  color: var(--blue);
+}
+.footer-contact-grid a:hover {
+  text-decoration: underline;
+}
+@media (min-width: 640px) {
+  .footer-contact-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
 .footer-bottom {
   border-top: 1px solid var(--line);
   padding-block: 20px;
