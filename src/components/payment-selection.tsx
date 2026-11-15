@@ -62,24 +62,35 @@ export function PaymentSelection({
       {method === "cod" && (
         <p className="payment-guidance">{t.paymentCodNoScreenshot}</p>
       )}
-      {preview?.showQrPlaceholder && (
-        <div className="payment-mmqr-info">
-          <div
-            className="merchant-qr-placeholder"
-            role="img"
-            aria-label={t.paymentQrPlaceholder}
-          >
-            <span aria-hidden="true">QR</span>
-            <p>{t.paymentQrPlaceholder}</p>
-          </div>
-          <p className="payment-guidance">{t.paymentScreenshotLater}</p>
-          {preview.requiresManualVerification && (
-            <p className="payment-verification">
-              {t.paymentManualVerification}
-            </p>
-          )}
-        </div>
-      )}
+   
+{preview?.showQrPlaceholder && (
+  <div className="payment-mmqr-info">
+    <div className="merchant-qr-placeholder">
+      <img
+        src="/images/unitshop-mmqr.JPG"
+        alt="GIG Merchant MMQR Payment QR Code"
+        style={{
+          width: "100%",
+          maxWidth: "320px",
+          height: "auto",
+          display: "block",
+          margin: "0 auto",
+        }}
+      />
+    </div>
+
+    <p className="payment-guidance">
+      {t.paymentScreenshotLater}
+    </p>
+
+    {preview.requiresManualVerification && (
+      <p className="payment-verification">
+        {t.paymentManualVerification}
+      </p>
+    )}
+  </div>
+)}
+
     </fieldset>
   );
 }
