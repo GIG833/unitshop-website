@@ -11,16 +11,19 @@ export function PaymentSelection({
   onChange,
   locale,
   invalid,
+  disabled = false,
 }: {
   method: PaymentMethod | null;
   onChange: (method: PaymentMethod) => void;
   locale: Locale;
   invalid: boolean;
+  disabled?: boolean;
 }) {
   const t = dictionaries[locale];
   const preview = method ? PAYMENT_PREVIEW[method] : null;
   return (
     <fieldset
+      disabled={disabled}
       className="payment-selection"
       aria-describedby={`payment-preview-note${invalid ? " payment-selection-error" : ""}`}
     >
@@ -62,35 +65,33 @@ export function PaymentSelection({
       {method === "cod" && (
         <p className="payment-guidance">{t.paymentCodNoScreenshot}</p>
       )}
-   
-{preview?.showQrPlaceholder && (
-  <div className="payment-mmqr-info">
-    <div className="merchant-qr-placeholder">
-      <img
-        src="/images/unitshop-mmqr.JPG"
-        alt="GIG Merchant MMQR Payment QR Code"
-        style={{
-          width: "100%",
-          maxWidth: "320px",
-          height: "auto",
-          display: "block",
-          margin: "0 auto",
-        }}
-      />
-    </div>
 
-    <p className="payment-guidance">
-      {t.paymentScreenshotLater}
-    </p>
+      {preview?.showQrPlaceholder && (
+        <div className="payment-mmqr-info">
+          <div className="merchant-qr-placeholder">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/unitshop-mmqr.JPG"
+              alt="GIG Merchant MMQR Payment QR Code"
+              style={{
+                width: "100%",
+                maxWidth: "320px",
+                height: "auto",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
+          </div>
 
-    {preview.requiresManualVerification && (
-      <p className="payment-verification">
-        {t.paymentManualVerification}
-      </p>
-    )}
-  </div>
-)}
+          <p className="payment-guidance">{t.paymentScreenshotLater}</p>
 
+          {preview.requiresManualVerification && (
+            <p className="payment-verification">
+              {t.paymentManualVerification}
+            </p>
+          )}
+        </div>
+      )}
     </fieldset>
   );
 }

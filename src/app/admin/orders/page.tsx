@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { AdminPaymentReview } from "@/components/admin-payment-review";
 
 export default function AdminOrdersPage() {
   
@@ -19,6 +20,7 @@ const [orders, setOrders] = useState<
     total_amount: number;
     payment_method: string;
     payment_status: string;
+    has_payment_screenshot: boolean;
     order_status: string;
     created_at: string;
   }>
@@ -229,6 +231,7 @@ async function updateOrderStatus(
 
           </div>
 
+          <p className="mt-2 text-sm text-slate-600">Order ID: #{order.id}</p>
           <p className="mt-2 text-sm text-slate-600">
             Phone: {order.customer_phone}
           </p>
@@ -241,6 +244,15 @@ async function updateOrderStatus(
           <p className="text-sm text-slate-600">
             Payment: {order.payment_method} ({order.payment_status})
           </p>
+          <AdminPaymentReview
+            orderId={order.id}
+            method={order.payment_method}
+            status={order.payment_status}
+            hasScreenshot={order.has_payment_screenshot}
+            onPaymentUpdated={paymentStatus => setOrders(previous => previous.map(
+              item => item.id === order.id ? { ...item, payment_status: paymentStatus } : item
+            ))}
+          />
           <p className="mt-2 text-xs text-slate-400">
             {new Date(order.created_at).toLocaleString()}
           </p>

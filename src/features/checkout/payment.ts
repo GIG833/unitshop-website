@@ -1,4 +1,4 @@
-// Payment preference only. These values do not initiate or confirm payments.
+// Checkout display capabilities only. Payment verification remains an admin action.
 export const PAYMENT_METHODS = ["cod", "mmqr"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export function isPaymentMethod(value: unknown): value is PaymentMethod {
@@ -12,14 +12,14 @@ export const PAYMENT_PREVIEW = {
   },
   mmqr: {
     showQrPlaceholder: true,
-    screenshotUploadEnabled: false,
+    screenshotUploadEnabled: true,
     requiresManualVerification: true,
   },
 } as const satisfies Record<
   PaymentMethod,
   {
     showQrPlaceholder: boolean;
-    screenshotUploadEnabled: false;
+    screenshotUploadEnabled: boolean;
     requiresManualVerification: boolean;
   }
 >;

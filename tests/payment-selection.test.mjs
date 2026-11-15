@@ -47,11 +47,11 @@ test("only COD and MMQR are valid payment preferences", () => {
   for (const value of [null, undefined, "", "card", "COD", "bank", 1, {}])
     assert.equal(payment.isPaymentMethod(value), false);
 });
-test("preview policy never enables uploads and MMQR requires manual verification", () => {
+test("only MMQR enables post-order uploads and requires manual verification", () => {
   assert.equal(payment.PAYMENT_PREVIEW.cod.showQrPlaceholder, false);
   assert.equal(payment.PAYMENT_PREVIEW.cod.screenshotUploadEnabled, false);
   assert.equal(payment.PAYMENT_PREVIEW.mmqr.showQrPlaceholder, true);
-  assert.equal(payment.PAYMENT_PREVIEW.mmqr.screenshotUploadEnabled, false);
+  assert.equal(payment.PAYMENT_PREVIEW.mmqr.screenshotUploadEnabled, true);
   assert.equal(payment.PAYMENT_PREVIEW.mmqr.requiresManualVerification, true);
 });
 test("every rendered state offers exactly two native mutually exclusive radio choices", () => {
@@ -62,7 +62,11 @@ test("every rendered state offers exactly two native mutually exclusive radio ch
     assert.equal((html.match(/checked=""/g) || []).length, method ? 1 : 0);
     if (method)
       assert.match(html, new RegExp(`id="payment-${method}"[^>]*checked=""`));
-    assert.doesNotMatch(html, /type="file"|<img|<svg|<canvas|<iframe/);
+    assert.doesNotMatch(html, /type="file"|<svg|<canvas|<iframe/);
+    assert.equal(
+      (html.match(/src="\/images\/unitshop-mmqr[.]JPG"/g) || []).length,
+      method === "mmqr" ? 1 : 0,
+    );
   }
 });
 test("COD displays no-screenshot guidance and no merchant QR placeholder", () => {
@@ -71,15 +75,11 @@ test("COD displays no-screenshot guidance and no merchant QR placeholder", () =>
   assert.ok(!html.includes('class="merchant-qr-placeholder"'));
   assert.ok(!html.includes(i18n.dictionaries.en.paymentScreenshotLater));
 });
-test("MMQR shows placeholder, future-upload and manual verification guidance in both languages", () => {
+test("MMQR preserves the GIG QR and post-order upload/manual verification guidance", () => {
   for (const locale of ["en", "my"]) {
     const html = render("mmqr", locale);
     assert.ok(html.includes('class="merchant-qr-placeholder"'));
-    for (const key of [
-      "paymentQrPlaceholder",
-      "paymentScreenshotLater",
-      "paymentManualVerification",
-    ])
+    for (const key of ["paymentScreenshotLater", "paymentManualVerification"])
       assert.ok(html.includes(i18n.dictionaries[locale][key]));
   }
 });

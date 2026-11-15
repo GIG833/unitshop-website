@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const { data: orders, error } = await db
       .from("orders")
       .select(
-        "id, customer_name, customer_phone, customer_city, total_amount, payment_method, payment_status, order_status, created_at"
+        "id, customer_name, customer_phone, customer_city, total_amount, payment_method, payment_status, order_status, created_at, payment_screenshot_path"
       )
       .order("created_at", { ascending: false })
       .limit(50);
@@ -76,7 +76,13 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, orders: orders ?? [] },
+      {
+        success: true,
+        orders: (orders ?? []).map(({ payment_screenshot_path, ...order }) => ({
+          ...order,
+          has_payment_screenshot: !!payment_screenshot_path,
+        })),
+      },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch {

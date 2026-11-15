@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { createHash, randomUUID } from "node:crypto";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -15,7 +14,7 @@ function fail(message: string, status: number) {
     {
       status,
       headers: { "Cache-Control": "no-store" },
-    }
+    },
   );
 }
 
@@ -55,20 +54,23 @@ export async function POST(request: NextRequest) {
   const orderId = Number(orderIdText);
   const scopeHash = hash(guest);
 
+  let attemptedStoragePath: string | null = null;
   try {
     const supabase = createServerSupabaseClient();
 
     // Verify guest ownership.
-    const { data: ownsOrder, error: ownershipError } =
-      await supabase.rpc("verify_guest_order_ownership", {
+    const { data: ownsOrder, error: ownershipError } = await supabase.rpc(
+      "verify_guest_order_ownership",
+      {
         p_scope_hash: scopeHash,
         p_order_id: orderId,
-      });
+      },
+    );
 
     if (ownershipError) {
       console.error(
         "Order ownership verification failed:",
-        ownershipError.code
+        ownershipError.code,
       );
       return fail("Unable to verify order", 503);
     }
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .select(
-        "payment_method, payment_status, payment_screenshot_path, order_status"
+        "payment_method, payment_status, payment_screenshot_path, order_status",
       )
       .eq("id", orderId)
       .maybeSingle();
@@ -94,16 +96,19 @@ export async function POST(request: NextRequest) {
       return fail("MMQR order required", 400);
     }
 
-    if (order.order_status !== "pending") {
-      return fail("Order is not pending", 409);
-    }
-
-    if (order.payment_status !== "pending") {
-      return fail("Payment is not pending", 409);
-    }
-
+    // Acknowledge an earlier successful attachment after a lost response.
+    // This confirms receipt of evidence only, never payment verification.
     if (order.payment_screenshot_path) {
-      return fail("Payment screenshot already submitted", 409);
+      return NextResponse.json(
+        { success: true, message: "Payment screenshot already submitted" },
+        { status: 200, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    if (
+      order.order_status !== "pending" ||
+      order.payment_status !== "pending"
+    ) {
+      return fail("Order or payment is not pending", 409);
     }
 
     // Limit request size.
@@ -151,13 +156,17 @@ export async function POST(request: NextRequest) {
       headers: {
         "content-type": contentType,
       },
-      body: Buffer.concat(
-        chunks.map((chunk) => Buffer.from(chunk))
-      ),
+      body: Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))),
     });
 
-    const formData = await boundedRequest.formData();
-    const file = formData.get("screenshot");
+    let formData: FormData;
+    try {
+      formData = await boundedRequest.formData();
+    } catch {
+      return fail("Invalid form data", 400);
+    }
+    const screenshots = formData.getAll("screenshot");
+    const file = screenshots.length === 1 ? screenshots[0] : null;
 
     if (!(file instanceof File)) {
       return fail("Screenshot file required", 400);
@@ -167,11 +176,7 @@ export async function POST(request: NextRequest) {
       return fail("Screenshot must be 5MB or smaller", 413);
     }
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
       return fail("Unsupported screenshot format", 415);
@@ -188,9 +193,9 @@ export async function POST(request: NextRequest) {
 
     const isPng =
       buffer.length >= 8 &&
-      buffer.subarray(0, 8).equals(
-        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
-      );
+      buffer
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
 
     const isWebp =
       buffer.length >= 12 &&
@@ -213,9 +218,9 @@ export async function POST(request: NextRequest) {
           ? "png"
           : "webp";
 
-    const storagePath =
-      `orders/${orderId}/${randomUUID()}.${extension}`;
+    const storagePath = `orders/${orderId}/${randomUUID()}.${extension}`;
 
+    attemptedStoragePath = storagePath;
     // Upload screenshot to private storage.
     const { error: uploadError } = await supabase.storage
       .from("payment-screenshots")
@@ -226,39 +231,68 @@ export async function POST(request: NextRequest) {
 
     if (uploadError) {
       console.error(
-        "Payment screenshot upload failed:",
-        uploadError.message
+        "Payment screenshot upload outcome uncertain:",
+        uploadError.name,
+        storagePath,
       );
 
       return fail("Unable to upload screenshot", 503);
     }
 
     // Save path only if order is still eligible.
-    const { data: updatedOrder, error: updateError } =
-      await supabase
-        .from("orders")
-        .update({
-          payment_screenshot_path: storagePath,
-        })
-        .eq("id", orderId)
-        .eq("payment_method", "MMQR")
-        .eq("payment_status", "pending")
-        .eq("order_status", "pending")
-        .is("payment_screenshot_path", null)
-        .select("id")
-        .maybeSingle();
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from("orders")
+      .update({
+        payment_screenshot_path: storagePath,
+      })
+      .eq("id", orderId)
+      .eq("payment_method", "MMQR")
+      .eq("payment_status", "pending")
+      .eq("order_status", "pending")
+      .is("payment_screenshot_path", null)
+      .select("id")
+      .maybeSingle();
 
-    if (updateError || !updatedOrder) {
+    if (updateError) {
+      // The update may have committed despite a transport/response error.
+      // Preserve the object for reconciliation; never delete in this branch.
       console.error(
-        "Screenshot database update not confirmed:",
-        updateError?.code ?? "No matching order",
-        storagePath
+        "Screenshot attachment outcome uncertain:",
+        updateError.code,
+        storagePath,
       );
-
       return fail(
-        "Unable to confirm payment screenshot submission",
-        503
+        "Unable to confirm payment screenshot submission; retry the same order",
+        503,
       );
+    }
+    if (!updatedOrder) {
+      // Confirmed zero-row compare-and-set. Read back before deleting only
+      // this request's unused object; preserve it if the read is uncertain.
+      const { data: current, error: readError } = await supabase
+        .from("orders")
+        .select("payment_screenshot_path")
+        .eq("id", orderId)
+        .maybeSingle();
+      if (readError || !current) {
+        console.error("Screenshot reconciliation required:", storagePath);
+        return fail(
+          "Unable to confirm payment screenshot submission; retry the same order",
+          503,
+        );
+      }
+      if (current.payment_screenshot_path !== storagePath) {
+        const { error: cleanupError } = await supabase.storage
+          .from("payment-screenshots")
+          .remove([storagePath]);
+        if (cleanupError)
+          console.error("Unused screenshot cleanup required:", storagePath);
+      }
+      if (!current.payment_screenshot_path)
+        return fail(
+          "Order is no longer eligible for screenshot submission",
+          409,
+        );
     }
 
     return NextResponse.json(
@@ -271,17 +305,15 @@ export async function POST(request: NextRequest) {
         headers: {
           "Cache-Control": "no-store",
         },
-      }
+      },
     );
   } catch (error) {
     console.error(
       "Payment screenshot processing failed:",
-      error
+      error instanceof Error ? error.name : "Unknown error",
+      attemptedStoragePath,
     );
 
-    return fail(
-      "Payment screenshot processing temporarily unavailable",
-      503
-    );
+    return fail("Payment screenshot processing temporarily unavailable", 503);
   }
 }
