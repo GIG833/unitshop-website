@@ -27,6 +27,9 @@ const [orders, setOrders] = useState<
 const [loadingOrders, setLoadingOrders] = useState(true);
 const [ordersError, setOrdersError] = useState("");
 
+const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+const [statusUpdateError, setStatusUpdateError] = useState("");
+
 
   useEffect(() => {
     let active = true;
@@ -99,6 +102,59 @@ const [ordersError, setOrdersError] = useState("");
     };
   }, [router]);
 
+  async function updateOrderStatus(
+    orderId: string,
+    newStatus: string
+  ) {
+    if (updatingOrderId !== null) return;
+
+    setUpdatingOrderId(orderId);
+    setStatusUpdateError("");
+
+    try {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error || !data.session?.access_token) {
+        throw new Error("Admin session expired");
+      }
+
+      const response = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${data.session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          order_status: newStatus,
+        }),
+        cache: "no-store",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(result.message || "Unable to update order");
+      }
+
+      setOrders((previous) =>
+        previous.map((order) =>
+          order.id === orderId
+            ? { ...order, order_status: result.order.order_status }
+            : order
+        )
+      );
+    } catch (error) {
+      setStatusUpdateError(
+        error instanceof Error
+          ? error.message
+          : "Unable to update order"
+      );
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  }
+
   if (!authorized) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -118,7 +174,16 @@ const [ordersError, setOrdersError] = useState("");
           UNITSHOP Customer Orders
         </p>
 
-        
+  
+{statusUpdateError && (
+  <div
+    role="alert"
+    className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+  >
+    {statusUpdateError}
+  </div>
+)}
+      
 <div className="mt-8 rounded-xl border bg-white p-6 shadow-sm">
   {loadingOrders ? (
     <p className="text-slate-500">Loading orders...</p>
@@ -137,9 +202,31 @@ const [ordersError, setOrdersError] = useState("");
             <p className="font-semibold text-slate-800">
               {order.customer_name}
             </p>
-            <span className="text-sm text-blue-700">
-              {order.order_status}
-            </span>
+          
+<div className="flex items-center gap-2">
+  <select
+    value={order.order_status}
+    disabled={updatingOrderId !== null}
+    onChange={(event) =>
+      void updateOrderStatus(order.id, event.target.value)
+    }
+    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
+  >
+    <option value="pending">Pending</option>
+    <option value="confirmed">Confirmed</option>
+    <option value="processing">Processing</option>
+    <option value="shipped">Shipped</option>
+    <option value="delivered">Delivered</option>
+    <option value="cancelled">Cancelled</option>
+  </select>
+
+  {updatingOrderId === order.id && (
+    <span className="text-xs text-blue-600">
+      Saving...
+    </span>
+  )}
+</div>
+
           </div>
 
           <p className="mt-2 text-sm text-slate-600">
