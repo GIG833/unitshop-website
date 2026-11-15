@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only verified admins can access the service-role client.
     const db = createServerSupabaseClient();
 
     const { data: orders, error } = await db
@@ -69,6 +68,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("Admin orders query failed:", error.code);
+
       return NextResponse.json(
         { success: false, message: "Unable to load orders" },
         { status: 500 }
@@ -85,4 +85,20 @@ export async function GET(request: NextRequest) {
       { status: 503 }
     );
   }
+}
+
+export async function PATCH(request: NextRequest) {
+  const authorization = request.headers.get("authorization");
+
+  if (!authorization?.startsWith("Bearer ")) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  return NextResponse.json(
+    { success: false, message: "Order updates not enabled yet" },
+    { status: 503 }
+  );
 }
