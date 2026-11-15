@@ -12,7 +12,7 @@ export default function AdminOrdersPage() {
   
 const [orders, setOrders] = useState<
   Array<{
-    id: string;
+  id: number;
     customer_name: string;
     customer_phone: string;
     customer_city: string;
@@ -27,7 +27,7 @@ const [orders, setOrders] = useState<
 const [loadingOrders, setLoadingOrders] = useState(true);
 const [ordersError, setOrdersError] = useState("");
 
-const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
 const [statusUpdateError, setStatusUpdateError] = useState("");
 
 
@@ -101,11 +101,11 @@ const [statusUpdateError, setStatusUpdateError] = useState("");
       active = false;
     };
   }, [router]);
-
-  async function updateOrderStatus(
-    orderId: string,
-    newStatus: string
-  ) {
+async function updateOrderStatus(
+  orderId: number,
+  newStatus: string
+)
+  {
     if (updatingOrderId !== null) return;
 
     setUpdatingOrderId(orderId);
