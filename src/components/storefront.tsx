@@ -321,15 +321,6 @@ export function Storefront({
                 </>
               )}
             </div>
-            <aside className="sample-notice">
-              <span className="notice-icon" aria-hidden="true">
-                i
-              </span>
-              <div>
-                <h3>{t.noticeTitle}</h3>
-                <p>{t.notice}</p>
-              </div>
-            </aside>
           </div>
         </section>
         <section id="about" className="about-section container">
@@ -353,6 +344,36 @@ export function Storefront({
               {t.back} ↑
             </a>
           </div>
+          <section
+            className="footer-contact"
+            aria-labelledby="footer-contact-title"
+          >
+            <h2 id="footer-contact-title">{t.contactTitle}</h2>
+            <dl className="footer-contact-grid">
+              <div>
+                <dt>{t.contactPhone}</dt>
+                <dd>
+                  <a href="tel:09780078055" dir="ltr">
+                    09780078055
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>Viber</dt>
+                <dd>
+                  <span dir="ltr">09780078055</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Facebook</dt>
+                <dd>
+                  <a href="https://www.facebook.com/share/1K2GiDideu/?mibextid=wwXIfr">
+                    {t.contactFacebook}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </section>
           <div className="footer-bottom">
             <span>© {new Date().getFullYear()} UNITSHOP</span>
             <span>{t.footerNote}</span>
