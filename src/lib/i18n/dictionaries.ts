@@ -70,22 +70,39 @@ export const dictionaries = {
       "This product is not available to view. It may have been removed or is no longer active.",
     description: "Description",
     noDescription: "No description is available yet.",
+    screenshotTitle: "MMQR payment screenshot",
+    screenshotHelp:
+      "Upload evidence for this existing order. Do not place another order to retry. Order",
+    screenshotSelect: "Select payment screenshot",
+    screenshotLimits:
+      "JPEG, PNG or WebP. Maximum 5 MB. Keep this page open until submission is confirmed.",
+    screenshotUpload: "Upload screenshot",
+    screenshotRetry: "Retry screenshot upload",
+    screenshotUploading: "Uploading screenshot… Please wait.",
+    screenshotWaiting:
+      "Order created. Select your screenshot to submit for manual review.",
+    screenshotSuccess:
+      "Screenshot received. Payment is awaiting manual admin verification; it is not automatically verified.",
+    screenshotFailure:
+      "Submission could not be confirmed. Your order already exists. Retry here to upload to the same order; do not place another order.",
+    screenshotSizeError: "Select a non-empty image no larger than 5 MB.",
+    screenshotTypeError: "Only JPEG, PNG and WebP images are supported.",
     paymentTitle: "Payment method",
     paymentPreview:
-      "Choose a payment preference for this preview only. Payments are not enabled.",
+      "Choose COD or MMQR. For MMQR, place the order first, then upload your payment screenshot.",
     paymentCod: "Cash on Delivery (COD)",
     paymentMmqr: "MMQR",
-    paymentCodHelp: "Pay on delivery in a future ordering phase.",
-    paymentMmqrHelp: "Merchant QR payment planned for a later phase.",
+    paymentCodHelp: "Pay cash when your order is delivered.",
+    paymentMmqrHelp:
+      "Use the GIG merchant QR and upload evidence after your order is created.",
     paymentRequired: "Please select COD or MMQR.",
-    paymentCodNoScreenshot:
-      "COD does not require a payment screenshot. No payment is collected in this preview.",
+    paymentCodNoScreenshot: "COD does not require a payment screenshot.",
     paymentQrPlaceholder:
       "Merchant QR placeholder — not scannable. Do not send payment.",
     paymentScreenshotLater:
-      "Payment screenshot upload will be implemented in a later phase. Uploads are not available here.",
+      "Place the MMQR order first. Screenshot upload becomes available under your order receipt.",
     paymentManualVerification:
-      "Future MMQR payments must be manually verified by an admin. A screenshot alone must never automatically confirm payment. No payment is confirmed in this preview.",
+      "An admin must manually verify MMQR payment. Uploading a screenshot does not confirm or verify payment.",
     checkoutTitle: "Guest checkout preview",
     checkoutContinue: "Guest checkout preview",
     checkoutBack: "Back to cart",
@@ -93,7 +110,7 @@ export const dictionaries = {
       "Preview only: no order is created, no details are sent, and no payment is collected.",
     checkoutGuest: "Delivery details",
     checkoutPrivacy:
-      "No account needed. Details stay on this page only and are not saved when you leave or refresh.",
+      "No account needed. Placing an order sends these details to UNITSHOP for order fulfilment.",
     checkoutFullName: "Full Name",
     checkoutPhone: "Phone Number",
     checkoutCity: "City / Township",
@@ -216,20 +233,36 @@ export const dictionaries = {
       "ဤပစ္စည်းကို ကြည့်ရှု၍ မရနိုင်ပါ။ ဖယ်ရှားထားခြင်း သို့မဟုတ် လက်ရှိ မဖော်ပြထားခြင်း ဖြစ်နိုင်ပါသည်။",
     description: "အသေးစိတ်ဖော်ပြချက်",
     noDescription: "အသေးစိတ်ဖော်ပြချက် မရှိသေးပါ။",
+    screenshotTitle: "MMQR ငွေပေးချေမှု စခရင်ရှော့",
+    screenshotHelp:
+      "ဤရှိပြီးသားအော်ဒါအတွက် အထောက်အထား တင်ပါ။ ထပ်စမ်းရန် အော်ဒါအသစ် မတင်ပါနှင့်။ အော်ဒါ",
+    screenshotSelect: "ငွေပေးချေမှု စခရင်ရှော့ ရွေးရန်",
+    screenshotLimits:
+      "JPEG၊ PNG သို့မဟုတ် WebP။ အများဆုံး 5 MB။ တင်ခြင်းအတည်ပြုပြီးသည်အထိ ဤစာမျက်နှာကို ဖွင့်ထားပါ။",
+    screenshotUpload: "စခရင်ရှော့ တင်ရန်",
+    screenshotRetry: "စခရင်ရှော့ ပြန်တင်ရန်",
+    screenshotUploading: "စခရင်ရှော့ တင်နေပါသည်… ခဏစောင့်ပါ။",
+    screenshotWaiting: "အော်ဒါတင်ပြီးပါပြီ။ အက်ဒမင်စစ်ဆေးရန် စခရင်ရှော့ကို ရွေးပြီးတင်ပါ။",
+    screenshotSuccess:
+      "စခရင်ရှော့ လက်ခံရရှိပါပြီ။ ငွေပေးချေမှုကို အက်ဒမင်က စစ်ဆေးရန် ကျန်ရှိပြီး အလိုအလျောက် အတည်မပြုပါ။",
+    screenshotFailure:
+      "တင်ခြင်းကို အတည်မပြုနိုင်ပါ။ သင့်အော်ဒါ ရှိပြီးသားဖြစ်ပါသည်။ ဤနေရာမှ အော်ဒါတစ်ခုတည်းသို့ ပြန်တင်ပါ။ အော်ဒါအသစ် မတင်ပါနှင့်။",
+    screenshotSizeError: "ပုံဖိုင်အလွတ် မဖြစ်ရပါ။ 5 MB ထက် မကြီးသောပုံကို ရွေးပါ။",
+    screenshotTypeError: "JPEG၊ PNG နှင့် WebP ပုံများသာ လက်ခံပါသည်။",
     paymentTitle: "ငွေပေးချေမှု နည်းလမ်း",
-    paymentPreview: "ဤအကြိုကြည့်ရှုမှုအတွက်သာ နည်းလမ်းရွေးချယ်ပါ။ ငွေပေးချေမှု မဖွင့်ရသေးပါ။",
+    paymentPreview:
+      "COD သို့မဟုတ် MMQR ကို ရွေးပါ။ MMQR အတွက် အော်ဒါအရင်တင်ပြီးမှ ငွေပေးချေမှု စခရင်ရှော့ကို တင်ပါ။",
     paymentCod: "ပစ္စည်းရောက်မှ ငွေချေ (COD)",
     paymentMmqr: "MMQR",
-    paymentCodHelp: "နောင် အော်ဒါတင်နိုင်သည့်အဆင့်တွင် ပစ္စည်းရောက်မှ ငွေချေနိုင်မည်။",
-    paymentMmqrHelp: "ဆိုင်၏ QR ဖြင့် ငွေပေးချေခြင်းကို နောင်အဆင့်တွင် ထည့်သွင်းမည်။",
+    paymentCodHelp: "အော်ဒါပစ္စည်း ရောက်ရှိသည့်အခါ ငွေသားဖြင့် ချေပါ။",
+    paymentMmqrHelp: "GIG ဆိုင်၏ QR ကို အသုံးပြုပြီး အော်ဒါတင်ပြီးမှ အထောက်အထား တင်ပါ။",
     paymentRequired: "COD သို့မဟုတ် MMQR ကို ရွေးချယ်ပါ။",
-    paymentCodNoScreenshot:
-      "COD အတွက် ငွေပေးချေမှု စခရင်ရှော့ မလိုပါ။ ဤအကြိုကြည့်ရှုမှုတွင် ငွေမကောက်ခံပါ။",
+    paymentCodNoScreenshot: "COD အတွက် ငွေပေးချေမှု စခရင်ရှော့ မလိုပါ။",
     paymentQrPlaceholder: "ဆိုင်၏ QR ထည့်ရန် နေရာသာ ဖြစ်သည်။ စကင်ဖတ်၍ မရပါ။ ငွေမပို့ပါနှင့်။",
     paymentScreenshotLater:
-      "ငွေပေးချေမှု စခရင်ရှော့ တင်ခြင်းကို နောင်အဆင့်တွင် ထည့်သွင်းမည်။ ယခု ဖိုင်တင်၍ မရသေးပါ။",
+      "MMQR အော်ဒါကို အရင်တင်ပါ။ အော်ဒါပြေစာအောက်တွင် စခရင်ရှော့တင်ရန် နေရာ ပေါ်လာပါမည်။",
     paymentManualVerification:
-      "နောင် MMQR ငွေပေးချေမှုများကို အက်ဒမင်က ကိုယ်တိုင် စစ်ဆေးအတည်ပြုရမည်။ စခရင်ရှော့တစ်ခုတည်းဖြင့် ငွေပေးချေမှုကို အလိုအလျောက် အတည်မပြုရပါ။ ဤအကြိုကြည့်ရှုမှုတွင် ငွေပေးချေမှု အတည်မပြုပါ။",
+      "MMQR ငွေပေးချေမှုကို အက်ဒမင်က ကိုယ်တိုင် စစ်ဆေးအတည်ပြုရမည်။ စခရင်ရှော့တင်ခြင်းဖြင့် ငွေပေးချေမှု အတည်မဖြစ်ပါ။",
     checkoutTitle: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
     checkoutContinue: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
     checkoutBack: "ဈေးခြင်းသို့ ပြန်သွားရန်",
@@ -237,7 +270,7 @@ export const dictionaries = {
       "အကြိုကြည့်ရှုမှုသာ ဖြစ်သည်။ အော်ဒါ မဖန်တီးပါ၊ အချက်အလက် မပို့ပါ၊ ငွေမကောက်ခံပါ။",
     checkoutGuest: "ပို့ဆောင်ရန် အချက်အလက်များ",
     checkoutPrivacy:
-      "အကောင့်မလိုပါ။ အချက်အလက်များကို ဤစာမျက်နှာတွင်သာ ထားရှိပြီး ထွက်သွားခြင်း သို့မဟုတ် ပြန်ဖွင့်ခြင်းပြုပါက မသိမ်းထားပါ။",
+      "အကောင့်မလိုပါ။ အော်ဒါတင်သည့်အခါ ဤအချက်အလက်များကို အော်ဒါပို့ဆောင်ရန် UNITSHOP သို့ ပေးပို့မည်။",
     checkoutFullName: "အမည်အပြည့်အစုံ",
     checkoutPhone: "ဖုန်းနံပါတ်",
     checkoutCity: "မြို့ / မြို့နယ်",

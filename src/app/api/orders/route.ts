@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -15,7 +14,7 @@ function hash(value: string) {
 function fail(message: string, status: number) {
   return NextResponse.json(
     { success: false, message },
-    { status, headers: { "Cache-Control": "no-store" } }
+    { status, headers: { "Cache-Control": "no-store" } },
   );
 }
 
@@ -37,14 +36,36 @@ export async function POST(request: NextRequest) {
     return fail("JSON required", 415);
   }
 
-  let body: unknown;
-
-  try {
-    const raw = await request.text();
-    if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
+  const lengthHeader = request.headers.get("content-length");
+  if (lengthHeader !== null) {
+    const length = Number(lengthHeader);
+    if (
+      !Number.isSafeInteger(length) ||
+      length < 0 ||
+      length > MAX_BODY_BYTES
+    ) {
       return fail("Request too large", 413);
     }
-    body = JSON.parse(raw);
+  }
+
+  let body: unknown;
+  try {
+    // Bound the stream itself: Content-Length may be absent or untrusted.
+    const reader = request.body?.getReader();
+    if (!reader) return fail("Invalid JSON", 400);
+    const chunks: Uint8Array[] = [];
+    let bytes = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return fail("Request too large", 413);
+      }
+      chunks.push(value);
+    }
+    body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch {
     return fail("Invalid JSON", 400);
   }
@@ -78,15 +99,15 @@ export async function POST(request: NextRequest) {
         ? "MMQR"
         : null;
 
-  
-if (payment_method === "MMQR") {
-  return fail("MMQR payment is not available yet.", 403);
-}
+  if (!payment_method) {
+    return fail("Unsupported payment method", 400);
+  }
 
-
-  if (!Array.isArray(data.items) ||
-      data.items.length < 1 ||
-      data.items.length > 50) {
+  if (
+    !Array.isArray(data.items) ||
+    data.items.length < 1 ||
+    data.items.length > 50
+  ) {
     return fail("Invalid cart", 400);
   }
 
@@ -136,7 +157,9 @@ if (payment_method === "MMQR") {
 
   if (
     typeof key !== "string" ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      key,
+    )
   ) {
     return fail("Invalid request key", 400);
   }
@@ -153,13 +176,11 @@ if (payment_method === "MMQR") {
 
   const requestHash = hash(JSON.stringify(order));
 
- 
-const guest = request.cookies.get(COOKIE_NAME)?.value;
+  const guest = request.cookies.get(COOKIE_NAME)?.value;
 
-if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
-  return fail("Guest session required", 401);
-}
-
+  if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
+    return fail("Guest session required", 401);
+  }
 
   const scopeHash = hash(guest);
   const responseCookie = guest;
@@ -167,15 +188,12 @@ if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
   try {
     const supabase = createServerSupabaseClient();
 
-    const { data: receipt, error } = await supabase.rpc(
-      "create_guest_order",
-      {
-        p_scope_hash: scopeHash,
-        p_idempotency_key: key,
-        p_request_hash: requestHash,
-        p_order: order,
-      }
-    );
+    const { data: receipt, error } = await supabase.rpc("create_guest_order", {
+      p_scope_hash: scopeHash,
+      p_idempotency_key: key,
+      p_request_hash: requestHash,
+      p_order: order,
+    });
 
     if (error) {
       console.error("Order creation failed:", error.code);
@@ -189,7 +207,7 @@ if (!guest || !/^[0-9a-f]{64}$/.test(guest)) {
 
     const response = NextResponse.json(
       { success: true, receipt },
-      { status: 201, headers: { "Cache-Control": "no-store" } }
+      { status: 201, headers: { "Cache-Control": "no-store" } },
     );
 
     response.cookies.set(COOKIE_NAME, responseCookie, {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Brand } from "./brand";
 import { PaymentSelection } from "./payment-selection";
+import { PaymentScreenshotUpload } from "./payment-screenshot-upload";
 import {
   isPaymentMethod,
   type PaymentMethod,
@@ -35,21 +36,22 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   const [errors, setErrors] = useState<GuestErrors>({});
 
   const [attempted, setAttempted] = useState(false);
-  
-const [submitting, setSubmitting] = useState(false);
-const [submitError, setSubmitError] = useState<string | null>(null);
 
-const [orderReceipt, setOrderReceipt] = useState<{
-  order_id: number;
-  total_amount: number;
-  payment_method: "COD" | "MMQR";
-  payment_status: string;
-  order_status: string;
-} | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-const orderKeyRef = useRef<string | null>(null);
+  const [orderReceipt, setOrderReceipt] = useState<{
+    order_id: number;
+    total_amount: number;
+    payment_method: "COD" | "MMQR";
+    payment_status: string;
+    order_status: string;
+  } | null>(null);
 
-const orderPayloadRef = useRef<string | null>(null);
+  const orderKeyRef = useRef<string | null>(null);
+  const submittingRef = useRef(false);
+
+  const orderPayloadRef = useRef<string | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
@@ -126,95 +128,97 @@ const orderPayloadRef = useRef<string | null>(null);
   function updateField(field: keyof GuestDetails, value: string) {
     const next = { ...details, [field]: value };
     setDetails(next);
-   
+
     if (attempted) setErrors(validateGuest(next));
   }
- 
-async function submitOrder() {
-  if (submitting || orderReceipt || !canValidate) return;
 
-  const validationErrors = validateGuest(details);
-  if (Object.keys(validationErrors).length || !isPaymentMethod(paymentMethod)) {
-    setSubmitError("Please check your checkout information.");
-    return;
-  }
+  async function submitOrder() {
+    if (submittingRef.current || submitting || orderReceipt || !canValidate)
+      return;
 
-  setSubmitting(true);
-  setSubmitError(null);
-
-  try {
-    const sessionResponse = await fetch("/api/guest-session", {
-      method: "POST",
-      credentials: "same-origin",
-    });
-
-    if (!sessionResponse.ok) {
-      throw new Error("Unable to start guest session.");
+    const validationErrors = validateGuest(details);
+    if (
+      Object.keys(validationErrors).length ||
+      !isPaymentMethod(paymentMethod)
+    ) {
+      setSubmitError("Please check your checkout information.");
+      return;
     }
 
-  
-const orderPayload = {
-  customer_name: details.fullName.trim(),
-  customer_phone: details.phone.trim(),
-  customer_city: details.city.trim(),
-  delivery_address: details.address.trim(),
-  delivery_notes: details.notes.trim(),
-  payment_method: paymentMethod,
-  items: cart.entries.map((entry) => ({
-    product_id: entry.productId,
-    quantity: entry.quantity,
-  })),
-};
+    submittingRef.current = true;
+    setSubmitting(true);
+    setSubmitError(null);
 
-const payloadSignature = JSON.stringify(orderPayload);
+    try {
+      const sessionResponse = await fetch("/api/guest-session", {
+        method: "POST",
+        credentials: "same-origin",
+      });
 
-if (
-  orderPayloadRef.current !== payloadSignature ||
-  !orderKeyRef.current
-) {
-  orderKeyRef.current = crypto.randomUUID();
-  orderPayloadRef.current = payloadSignature;
-}
-
-const key = orderKeyRef.current;
-
-
-    const response = await fetch("/api/orders", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-  
-body: JSON.stringify({
-  ...orderPayload,
-  idempotency_key: key,
-}),
-
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success || !result.receipt) {
-      if (response.status === 409) {
-        orderKeyRef.current = null;
+      if (!sessionResponse.ok) {
+        throw new Error("Unable to start guest session.");
       }
-      throw new Error(result.message || "Unable to place order.");
-    }
 
-    setOrderReceipt(result.receipt);
-  
-  } catch (error) {
-    setSubmitError(
-      error instanceof Error ? error.message : "Unable to place order."
-    );
-  } finally {
-    setSubmitting(false);
+      const orderPayload = {
+        customer_name: details.fullName.trim(),
+        customer_phone: details.phone.trim(),
+        customer_city: details.city.trim(),
+        delivery_address: details.address.trim(),
+        delivery_notes: details.notes.trim(),
+        payment_method: paymentMethod,
+        items: cart.entries.map((entry) => ({
+          product_id: entry.productId,
+          quantity: entry.quantity,
+        })),
+      };
+
+      const payloadSignature = JSON.stringify(orderPayload);
+
+      if (
+        orderPayloadRef.current !== payloadSignature ||
+        !orderKeyRef.current
+      ) {
+        orderKeyRef.current = crypto.randomUUID();
+        orderPayloadRef.current = payloadSignature;
+      }
+
+      const key = orderKeyRef.current;
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify({
+          ...orderPayload,
+          idempotency_key: key,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.receipt) {
+        if (response.status === 409) {
+          orderKeyRef.current = null;
+        }
+        throw new Error(result.message || "Unable to place order.");
+      }
+
+      setOrderReceipt(result.receipt);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : "Unable to place order.",
+      );
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
+    }
   }
-}
 
   function validate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAttempted(true);
-    
+
     const nextErrors = validateGuest(details);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
@@ -229,22 +233,10 @@ body: JSON.stringify({
       formRef.current?.querySelector<HTMLInputElement>("#payment-cod")?.focus();
       return;
     }
-    
 
-if (paymentMethod === "mmqr") {
-  setSubmitError(
-    locale === "my"
-      ? "MMQR ငွေပေးချေမှုစနစ် ပြင်ဆင်နေဆဲဖြစ်ပါသည်။"
-      : "MMQR payment is not available yet."
-  );
-  return;
-}
-
-if (canValidate && !submitting && !orderReceipt) {
-  void submitOrder();
-}
-
-
+    if (canValidate && !submitting && !orderReceipt) {
+      void submitOrder();
+    }
   }
   return (
     <>
@@ -279,12 +271,12 @@ if (canValidate && !submitting && !orderReceipt) {
           ← {t.checkoutBack}
         </Link>
         <h1 className="cart-title">{t.checkoutTitle}</h1>
-       
-<p className="checkout-notice">
-  {locale === "my"
-    ? "အချက်အလက်များကို သေချာစစ်ဆေးပြီး Order တင်ပေးပါ။"
-    : "Please review your details before placing your order."}
-</p>
+
+        <p className="checkout-notice">
+          {locale === "my"
+            ? "အချက်အလက်များကို သေချာစစ်ဆေးပြီး Order တင်ပေးပါ။"
+            : "Please review your details before placing your order."}
+        </p>
 
         {cart.storageError && (
           <p className="catalog-state" role="alert">
@@ -321,13 +313,12 @@ if (canValidate && !submitting && !orderReceipt) {
                       field === "address" ? "street-address" : "off"
                     }
                     aria-invalid={!!errors[field]}
-                 
-aria-describedby={
-  errors[field] ? `checkout-${field}-error` : undefined
-}
-disabled={submitting || orderReceipt !== null}
-onChange={(event) => updateField(field, event.target.value)}
 
+                    aria-describedby={
+                      errors[field] ? `checkout-${field}-error` : undefined
+                    }
+                    disabled={submitting || orderReceipt !== null}
+                    onChange={(event) => updateField(field, event.target.value)}
                   />
                 ) : (
                   <input
@@ -348,8 +339,8 @@ onChange={(event) => updateField(field, event.target.value)}
                     aria-describedby={
                       errors[field] ? `checkout-${field}-error` : undefined
                     }
-                   
-disabled={submitting || orderReceipt !== null}
+
+                    disabled={submitting || orderReceipt !== null}
 
                     onChange={(event) => updateField(field, event.target.value)}
                   />
@@ -365,17 +356,16 @@ disabled={submitting || orderReceipt !== null}
               </div>
             ))}
             <PaymentSelection
+              disabled={submitting || orderReceipt !== null}
               method={paymentMethod}
               locale={locale}
               invalid={attempted && !isPaymentMethod(paymentMethod)}
-           
-onChange={(method) => {
-  if (submitting || orderReceipt !== null) return;
 
-  setPaymentMethod(method);
- 
-}}
+              onChange={(method) => {
+                if (submitting || orderReceipt !== null) return;
 
+                setPaymentMethod(method);
+              }}
             />
             {attempted && Object.keys(errors).length > 0 && (
               <p role="alert" className="checkout-field-error">
@@ -385,69 +375,75 @@ onChange={(method) => {
             <button
               className="button-primary"
               type="submit"
-              
-disabled={!canValidate || submitting || orderReceipt !== null}
 
+              disabled={!canValidate || submitting || orderReceipt !== null}
             >
-           
-{submitting
-  ? locale === "my"
-    ? "Order တင်နေပါသည်..."
-    : "Placing Order..."
-  : locale === "my"
-    ? "Order တင်မည်"
-    : "Place Order"}
-
+              {submitting
+                ? locale === "my"
+                  ? "Order တင်နေပါသည်..."
+                  : "Placing Order..."
+                : locale === "my"
+                  ? "Order တင်မည်"
+                  : "Place Order"}
             </button>
-            
-{submitError && (
-  <p role="alert" className="checkout-field-error">
-    {submitError}
-  </p>
-)}
 
-{submitting && (
-  <p role="status" className="checkout-validation">
-    {locale === "my"
-      ? "Order တင်နေပါသည်။ ခဏစောင့်ပေးပါ။"
-      : "Placing your order. Please wait..."}
-  </p>
-)}
+            {submitError && (
+              <p role="alert" className="checkout-field-error">
+                {submitError}
+              </p>
+            )}
 
-{orderReceipt && (
-  <div role="status" className="catalog-state">
-    <h2>
-      {locale === "my"
-        ? "Order တင်ခြင်း အောင်မြင်ပါသည်"
-        : "Order placed successfully"}
-    </h2>
-    <p>
-      Order Number: <strong>#{orderReceipt.order_id}</strong>
-    </p>
-    <p>
-      Total: <strong>{formatPrice(orderReceipt.total_amount, locale)}</strong>
-    </p>
-    <p>
-      Payment: <strong>{orderReceipt.payment_method}</strong>
-    </p>
-    
-<p>
-  Payment Status:{" "}
-  <strong>
-    {orderReceipt.payment_status === "pending"
-      ? locale === "my"
-        ? "ငွေပေးချေမှု စစ်ဆေးရန် ကျန်ရှိနေသည်"
-        : "Pending verification"
-      : orderReceipt.payment_status}
-  </strong>
-</p>
+            {submitting && (
+              <p role="status" className="checkout-validation">
+                {locale === "my"
+                  ? "Order တင်နေပါသည်။ ခဏစောင့်ပေးပါ။"
+                  : "Placing your order. Please wait..."}
+              </p>
+            )}
 
-    <p>
-      Status: <strong>{orderReceipt.order_status}</strong>
-    </p>
-  </div>
-)}
+            {orderReceipt && (
+              <div role="status" className="catalog-state">
+                <h2>
+                  {locale === "my"
+                    ? "Order တင်ခြင်း အောင်မြင်ပါသည်"
+                    : "Order placed successfully"}
+                </h2>
+                <p>
+                  Order Number: <strong>#{orderReceipt.order_id}</strong>
+                </p>
+                <p>
+                  Total:{" "}
+                  <strong>
+                    {formatPrice(orderReceipt.total_amount, locale)}
+                  </strong>
+                </p>
+                <p>
+                  Payment: <strong>{orderReceipt.payment_method}</strong>
+                </p>
 
+                <p>
+                  Payment Status:{" "}
+                  <strong>
+                    {orderReceipt.payment_status === "pending"
+                      ? locale === "my"
+                        ? "ငွေပေးချေမှု စစ်ဆေးရန် ကျန်ရှိနေသည်"
+                        : "Pending verification"
+                      : orderReceipt.payment_status}
+                  </strong>
+                </p>
+
+                <p>
+                  Status: <strong>{orderReceipt.order_status}</strong>
+                </p>
+                {orderReceipt.payment_method === "MMQR" && (
+                  <PaymentScreenshotUpload
+                    key={String(orderReceipt.order_id)}
+                    orderId={String(orderReceipt.order_id)}
+                    locale={locale}
+                  />
+                )}
+              </div>
+            )}
           </form>
           <aside
             className="checkout-summary"
@@ -467,7 +463,6 @@ disabled={!canValidate || submitting || orderReceipt !== null}
                   type="button"
                   className="button-primary"
                   onClick={() => {
-                   
                     setCatalogue({ signature, status: "loading" });
                     setRequest((value) => value + 1);
                   }}
@@ -557,9 +552,8 @@ disabled={!canValidate || submitting || orderReceipt !== null}
       <footer className="footer">
         <div className="container footer-bottom">
           <span>UNITSHOP</span>
-         
-<span>© UNITSHOP</span>
 
+          <span>© UNITSHOP</span>
         </div>
       </footer>
     </>
