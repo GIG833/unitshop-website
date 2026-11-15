@@ -150,8 +150,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     const input = body as Record<string, unknown>;
-    const orderId = input.order_id;
-    const newStatus = input.order_status;
+   
+const orderId = input.order_id;
+const newStatus = input.order_status;
+
+const validOrderId =
+  typeof orderId === "number" &&
+  Number.isSafeInteger(orderId) &&
+  orderId > 0;
+
 
     const allowedStatuses = [
       "pending",
@@ -162,12 +169,12 @@ export async function PATCH(request: NextRequest) {
       "cancelled",
     ];
 
-    if (
-      typeof orderId !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId) ||
-      typeof newStatus !== "string" ||
-      !allowedStatuses.includes(newStatus)
-    ) {
+if (
+  !validOrderId ||
+  typeof newStatus !== "string" ||
+  !allowedStatuses.includes(newStatus)
+) {
+
       return NextResponse.json(
         { success: false, message: "Invalid order ID or status" },
         { status: 400 }
