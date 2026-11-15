@@ -78,9 +78,6 @@ export async function POST(request: NextRequest) {
         ? "MMQR"
         : null;
 
-  if (!payment_method) {
-    return fail("Invalid payment method", 400);
-  }
   
 if (payment_method === "MMQR") {
   return fail("MMQR payment is not available yet.", 403);
