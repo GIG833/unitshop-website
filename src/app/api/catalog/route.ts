@@ -15,7 +15,19 @@ export async function GET() {
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const catalog = await loadCatalog(client);
-    return NextResponse.json(catalog, { headers });
+    const origin = new URL(url).origin;
+    const products = catalog.products.map((product) => {
+      if (!product.image_url) return product;
+      try {
+        const image = new URL(product.image_url);
+        const prefix = "/storage/v1/object/public/";
+        if (image.origin === origin && image.pathname.startsWith(prefix)) {
+          return { ...product, image_url: `/api/product-image?path=${encodeURIComponent(image.pathname)}` };
+        }
+      } catch { /* Preserve the original URL for non-Supabase images. */ }
+      return product;
+    });
+    return NextResponse.json({ ...catalog, products }, { headers });
   } catch (error) {
     console.error("Public catalog fetch failed", error instanceof Error ? error.name : "unknown");
     return NextResponse.json({ message: "Catalog temporarily unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
