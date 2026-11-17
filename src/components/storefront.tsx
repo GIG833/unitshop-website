@@ -183,7 +183,7 @@ export function Storefront({
               <span className="art-number">01 / 05</span>
             </div>
             <Image
-              src="/images/hero.svg"
+              src="/images/change%20GB.png"
               width={620}
               height={480}
               priority
