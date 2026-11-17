@@ -14,16 +14,9 @@ export async function GET(request: NextRequest) {
   try {
     const db = createServerSupabaseClient();
     const scope = createHash("sha256").update(guest).digest("hex");
-    const { data: links, error: linkError } = await db
-      .schema("private")
-      .from("guest_order_requests")
-      .select("order_id")
-      .eq("scope_hash", scope)
-      .not("order_id", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const { data: links, error: linkError } = await db.rpc("list_guest_order_ids", { p_scope_hash: scope });
     if (linkError) throw linkError;
-    const ids = [...new Set((links ?? []).map((x) => x.order_id).filter((x): x is number => typeof x === "number"))];
+    const ids = [...new Set((links ?? []).map((x: { order_id: number }) => x.order_id).filter((id: number) => Number.isSafeInteger(id) && id > 0))];
     if (ids.length === 0) return NextResponse.json({ success: true, orders: [] }, { headers });
     const { data: orders, error: orderError } = await db
       .from("orders")
