@@ -72,10 +72,6 @@ export function Storefront({
       <a className="skip-link" href="#main">
         {t.skip}
       </a>
-      <div className="announcement">
-        <span>{t.preview}</span>
-        <span className="preview-tag">{t.previewTag}</span>
-      </div>
       <header id="top" className="header">
         <div className="container header-inner">
           <a href="#top" aria-label="UNITSHOP" onClick={closeMenu}>
@@ -252,12 +248,6 @@ export function Storefront({
               <p>{t.featuredIntro}</p>
             </div>
             <div className="filters" role="group" aria-label={t.filter}>
-              <button
-                aria-pressed={filter === "all"}
-                onClick={() => setFilter("all")}
-              >
-                {t.all}
-              </button>
               {categories.map((category) => (
                 <button
                   key={category.id}
@@ -267,6 +257,12 @@ export function Storefront({
                   {categoryName(category)}
                 </button>
               ))}
+              <button
+                aria-pressed={filter === "all"}
+                onClick={() => setFilter("all")}
+              >
+                {t.all}
+              </button>
             </div>
             <div aria-busy={status === "loading"}>
               {status === "loading" && (
