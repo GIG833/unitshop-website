@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { Brand } from "./brand";
 import {
   filterProducts,
-  loadCatalog,
   type Catalog,
 } from "@/features/catalog/data";
 import { ProductCard } from "./product-card";
@@ -44,9 +43,9 @@ export function Storefront({
     let active = true;
     async function initialize() {
       try {
-        // Resolve configuration inside the error boundary, including missing public variables.
-        const { supabase } = await import("@/lib/supabase/client");
-        const result = await loadCatalog(supabase);
+        const response = await fetch("/api/catalog", { cache: "no-store" });
+        if (!response.ok) throw new Error("Catalog unavailable");
+        const result: Catalog = await response.json();
         if (active) {
           setCatalog(result);
           setStatus("ready");
