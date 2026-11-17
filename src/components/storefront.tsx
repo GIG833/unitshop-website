@@ -83,6 +83,7 @@ export function Storefront({
             <a href="#about">{t.about}</a>
           </nav>
           <div className="header-actions">
+            <Link className="cart-nav" href={`/my-orders?lang=${locale}`}>{locale === "my" ? "ကျွန်ုပ်၏ အော်ဒါများ" : "My Orders"}</Link>
             <Link className="cart-nav" href={`/cart?lang=${locale}`}>
               {t.cartTitle}
             </Link>
