@@ -20,7 +20,7 @@ export function Storefront({
 }) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [filter, setFilter] = useState<number | "all">("all");
+  const [filter, setFilter] = useState<number | "all" | "mifi">("mifi");
   const t = dictionaries[locale];
   const [catalog, setCatalog] = useState<Catalog>({
     categories: [],
@@ -31,7 +31,10 @@ export function Storefront({
   );
   const [request, setRequest] = useState(0);
   const { categories, products } = catalog;
-  const shown = filterProducts(products, filter);
+  const selectedFilter = filter === "mifi"
+    ? categories.find((category) => category.name_en.trim().toLowerCase() === "mifi")?.id ?? -1
+    : filter;
+  const shown = filterProducts(products, selectedFilter);
   const knownCategories = ["mifi", "routers", "wifi cards", "cctv", "gadgets"];
   const categoryIndex = (name: string) =>
     knownCategories.indexOf(name.trim().toLowerCase());
@@ -251,7 +254,7 @@ export function Storefront({
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  aria-pressed={filter === category.id}
+                  aria-pressed={selectedFilter === category.id}
                   onClick={() => setFilter(category.id)}
                 >
                   {categoryName(category)}
@@ -277,7 +280,7 @@ export function Storefront({
                     className="button-primary"
                     onClick={() => {
                       setStatus("loading");
-                      setFilter("all");
+                      setFilter("mifi");
                       setRequest((value) => value + 1);
                     }}
                   >
