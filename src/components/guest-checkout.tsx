@@ -11,11 +11,11 @@ import {
 import { useCart } from "@/features/cart/use-cart";
 import { totalMMK, type CartEntry } from "@/features/cart/model";
 import {
-  loadProduct,
   localizedText,
   formatPrice,
   type Product,
 } from "@/features/catalog/data";
+import { loadPublicProduct } from "@/features/catalog/public-client";
 import {
   EMPTY_GUEST,
   FIELD_LIMITS,
@@ -78,12 +78,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
             setCatalogue({ signature, status: "ready", products: [] });
           return;
         }
-        const { supabase } = await import("@/lib/supabase/client");
-        const products = await Promise.all(
-          entries.map((entry) =>
-            loadProduct(supabase, String(entry.productId)),
-          ),
-        );
+        const products = await Promise.all(entries.map((entry) => loadPublicProduct(String(entry.productId))));
         if (active) setCatalogue({ signature, status: "ready", products });
       } catch {
         if (active) setCatalogue({ signature, status: "error" });

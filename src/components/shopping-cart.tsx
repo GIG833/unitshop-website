@@ -5,11 +5,11 @@ import { Brand } from "./brand";
 import { useCart } from "@/features/cart/use-cart";
 import { MAX_QUANTITY, totalMMK, type CartEntry } from "@/features/cart/model";
 import {
-  loadProduct,
   formatPrice,
   localizedText,
   type Product,
 } from "@/features/catalog/data";
+import { loadPublicProduct } from "@/features/catalog/public-client";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 
 export function ShoppingCart({ initialLocale }: { initialLocale: Locale }) {
@@ -111,10 +111,7 @@ function CartContents({
     let active = true;
     async function initialize() {
       try {
-        const { supabase } = await import("@/lib/supabase/client");
-        const result = await Promise.all(
-          ids.split(",").map((id) => loadProduct(supabase, id)),
-        );
+        const result = await Promise.all(ids.split(",").map((id) => loadPublicProduct(id)));
         if (active) {
           setProducts(result);
           setStatus("ready");
@@ -133,8 +130,7 @@ function CartContents({
     setPending(entry.productId);
     setMessage("");
     try {
-      const { supabase } = await import("@/lib/supabase/client");
-      const fresh = await loadProduct(supabase, String(entry.productId));
+      const fresh = await loadPublicProduct(String(entry.productId));
       setProducts((current) =>
         current.map((product, index) =>
           entries[index].productId === entry.productId ? fresh : product,

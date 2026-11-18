@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { loadProduct } from "@/features/catalog/data";
+import { loadPublicProduct } from "@/features/catalog/public-client";
 import { useCart } from "@/features/cart/use-cart";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 export function AddToCart({
@@ -20,8 +20,7 @@ export function AddToCart({
     if (status === "adding") return;
     setStatus("adding");
     try {
-      const { supabase } = await import("@/lib/supabase/client");
-      const product = await loadProduct(supabase, String(productId));
+      const product = await loadPublicProduct(String(productId));
       if (!product) {
         setStatus("unavailable");
         return;
