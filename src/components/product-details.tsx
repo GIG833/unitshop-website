@@ -6,10 +6,10 @@ import { AddToCart } from "./add-to-cart";
 import {
   formatPrice,
   localizedText,
-  loadProduct,
   parseProductId,
   type Product,
 } from "@/features/catalog/data";
+import { loadPublicProduct } from "@/features/catalog/public-client";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 
 type ProductState =
@@ -39,8 +39,7 @@ export function ProductDetails({
           if (active) setState({ status: "not-found" });
           return;
         }
-        const { supabase } = await import("@/lib/supabase/client");
-        const product = await loadProduct(supabase, id);
+        const product = await loadPublicProduct(id);
         if (active)
           setState(
             product ? { status: "ready", product } : { status: "not-found" },
