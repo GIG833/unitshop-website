@@ -74,6 +74,13 @@ export default function AdminDashboard() {
             </Link>
           </section>
           <section className="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold">Promotion Banners</h2>
+            <p className="mt-2 text-slate-600">Create and publish homepage offers. Discounts are recorded manually on the final invoice.</p>
+            <Link href="/admin/promotions" className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700">
+              Manage Promotions
+            </Link>
+          </section>
+          <section className="rounded-xl border bg-white p-6 shadow-sm">
             <h2 className="text-xl font-semibold">Order Management</h2>
             <p className="mt-2 text-slate-600">Review customer delivery details, MMQR evidence and order status.</p>
             <Link href="/admin/orders" className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700">
