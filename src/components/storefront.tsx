@@ -43,11 +43,13 @@ export function Storefront({
   );
   const [request, setRequest] = useState(0);
   const { categories, products } = catalog;
+  // This must be initialized before evaluating a non-empty category list.
+  // The first render has zero categories, hiding a TDZ crash until API data arrives.
+  const categoryIndex = categoryPresentationIndex;
   const selectedFilter = filter === "mifi"
     ? categories.find((category) => categoryIndex(category.name_en) === 0)?.id ?? -1
     : filter;
   const shown = filterProducts(products, selectedFilter);
-  const categoryIndex = categoryPresentationIndex;
   const categoryName = (category: Catalog["categories"][number]) => {
     const index = categoryIndex(category.name_en);
     return index >= 0 ? t.categoryNames[index] : category.name_en;
