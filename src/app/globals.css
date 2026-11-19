@@ -1864,29 +1864,103 @@ button:disabled {
 }
 
 /* Homepage promotions are display-only; never alter prices in cards or checkout. */
-.promotion-section { padding-block: 14px 46px; }
-.promotion-heading { margin-bottom: 18px; }
+/* Compact promotion cards leave room for browsing categories and products. */
+.promotion-section { padding-block: 8px 30px; }
+.promotion-heading { margin-bottom: 14px; }
 .promotion-heading .eyebrow { color: #1559df; }
-.promotion-heading h2 { font-size: clamp(24px, 3vw, 32px); letter-spacing: -.035em; }
-.promotion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
-.promotion-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: 14px;
-  min-height: 235px; padding: clamp(22px, 3vw, 36px);
-  background: linear-gradient(118deg, #08234e 0%, #0f3f93 64%, #1761d4 100%);
-  color: #fff; border-radius: 20px; overflow: hidden; position: relative;
+.promotion-heading h2 { font-size: clamp(22px, 2.6vw, 29px); letter-spacing: -.035em; }
+.promotion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 14px;
 }
-.promotion-copy { position: relative; z-index: 1; flex: 1 1 55%; min-width: 0; }
-.promotion-kicker { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #a9d4ff; margin-bottom: 12px; }
-.promotion-banner h3 { font-size: clamp(24px, 3.5vw, 37px); line-height: 1.25; overflow-wrap: anywhere; }
-.promotion-body { margin-top: 12px; color: #e0eeff; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
-.promotion-note { margin-top: 16px; font-size: 11px; line-height: 1.6; color: #c9def9; }
-.promotion-image-wrap { flex: 0 1 37%; display: flex; align-items: center; justify-content: center; min-width: 0; }
-.promotion-image-wrap img { display: block; width: 100%; max-height: 235px; object-fit: contain; border-radius: 8px; }
-html[lang="my"] .promotion-banner h3 { letter-spacing: 0; line-height: 1.55; }
+.promotion-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(12px, 2.2vw, 28px);
+  min-height: 174px;
+  padding: clamp(18px, 2.3vw, 26px);
+  background: linear-gradient(118deg, #08234e 0%, #0f3f93 64%, #1761d4 100%);
+  color: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+.promotion-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.promotion-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  color: #a9d4ff;
+  margin-bottom: 9px;
+}
+.promotion-banner h3 {
+  font-size: clamp(21px, 2.8vw, 29px);
+  line-height: 1.28;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.promotion-body {
+  margin-top: 8px;
+  color: #e0eeff;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.promotion-note {
+  margin-top: 11px;
+  font-size: 10px;
+  line-height: 1.55;
+  color: #c9def9;
+}
+.promotion-image-wrap {
+  flex: 0 1 205px;
+  min-width: 0;
+  max-width: 32%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.promotion-image-wrap img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 148px;
+  object-fit: contain;
+  border-radius: 10px;
+  /* Preserve the uploaded artwork, including its original background. */
+}
+html[lang="my"] .promotion-banner h3 { letter-spacing: 0; line-height: 1.5; }
+
 @media (max-width: 560px) {
-  .promotion-section { padding-block: 14px 28px; }
-  .promotion-banner { padding: 21px; min-height: 190px; flex-direction: column; align-items: stretch; }
-  .promotion-banner h3 { font-size: 24px; }
-  .promotion-image-wrap { max-height: 160px; flex: 1 1 auto; }
-  .promotion-image-wrap img { max-height: 150px; }
+  .promotion-section { padding-block: 6px 24px; }
+  .promotion-heading { margin-bottom: 12px; }
+  .promotion-heading h2 { font-size: 23px; }
+  .promotion-banner {
+    min-height: 0;
+    padding: 16px;
+    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 14px;
+  }
+  .promotion-kicker { font-size: 9px; margin-bottom: 7px; }
+  .promotion-banner h3 { font-size: clamp(18px, 5vw, 22px); line-height: 1.3; }
+  .promotion-body { font-size: 12px; margin-top: 6px; }
+  .promotion-note { font-size: 9px; margin-top: 8px; }
+  .promotion-image-wrap {
+    flex: 0 0 min(30%, 122px);
+    max-width: min(30%, 122px);
+  }
+  .promotion-image-wrap img {
+    width: auto;
+    max-width: 100%;
+    max-height: 125px;
+  }
 }

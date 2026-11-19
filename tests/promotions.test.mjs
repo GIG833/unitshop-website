@@ -9,6 +9,7 @@ const banners = read("../src/components/promotion-banners.tsx");
 const storefront = read("../src/components/storefront.tsx");
 const admin = read("../src/app/admin/promotions/page.tsx");
 const dashboard = read("../src/app/admin/page.tsx");
+const styles = read("../src/app/globals.css");
 
 test("promotion table has row-level security and only active rows visible to guests", () => {
   assert.match(migration, /alter table public.promotions enable row level security/i);
@@ -41,4 +42,13 @@ test("only existing admin-authenticated form can manage banners", () => {
   assert.ok(admin.includes('.from("promotions").update('));
   assert.ok(admin.includes('.from("promotions")'));
   assert.ok(dashboard.includes('href="/admin/promotions"'));
+});
+
+test("promotions remain compact, responsive and preserve original uploaded images", () => {
+  assert.match(styles, /\.promotion-banner\s*\{[^}]*min-height:\s*174px/s);
+  assert.match(styles, /\.promotion-image-wrap img\s*\{[^}]*object-fit:\s*contain/s);
+  assert.match(styles, /@media \(max-width:\s*560px\)/);
+  assert.match(styles, /@media \(max-width:\s*560px\)[\s\S]*?\.promotion-banner\s*\{[^}]*flex-direction:\s*row/s);
+  assert.match(styles, /\.promotion-section\s*\{[^}]*padding-block:\s*8px 30px/s);
+  assert.ok(!styles.includes("background-image: url("));
 });
