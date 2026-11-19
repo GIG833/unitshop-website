@@ -26,6 +26,17 @@ jobs:
             curl -4 -ILsS --max-time 14 -w "HTTP_CODE=%{http_code} REMOTE_IP=%{remote_ip} SSL_VERIFY=%{ssl_verify_result} URL_EFFECTIVE=%{url_effective}\n" "https://$host/" | tail -24
             echo "::endgroup::"
           done
+          echo "::group::IPv6 and complete page/API probe"
+          dig +time=3 +tries=1 www.unitshopmm.com AAAA +noall +answer +comments | tail -12
+          dig +time=3 +tries=1 unitshopmm.com AAAA +noall +answer +comments | tail -12
+          curl -sS -4 -L --max-time 18 -A "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1" -D /tmp/unitshop-headers -o /tmp/unitshop-html -w "HTML_HTTP_CODE=%{http_code} BYTES=%{size_download} URL=%{url_effective} SSL_VERIFY=%{ssl_verify_result}\\n" https://www.unitshopmm.com/
+          head -n 14 /tmp/unitshop-headers | tr -d '\\r'
+          echo "UNITSHOP_MENTION_COUNT=$(grep -oi 'unitshop' /tmp/unitshop-html | wc -l)"
+          echo "SHOP_PRODUCTS_CTA_COUNT=$(grep -oi 'shop products' /tmp/unitshop-html | wc -l)"
+          curl -sS -4 -L --max-time 18 -o /tmp/unitshop-catalog -w "CATALOG_HTTP_CODE=%{http_code} BYTES=%{size_download} URL=%{url_effective}\\n" https://www.unitshopmm.com/api/catalog
+          head -c 180 /tmp/unitshop-catalog
+          echo
+          echo "::endgroup::"
           echo "::group::Authoritative DNS"
           dig +time=3 +tries=1 unitshopmm.com NS +noall +answer +comments | tail -12
           echo "::endgroup::"
