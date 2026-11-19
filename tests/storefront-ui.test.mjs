@@ -51,6 +51,15 @@ test("small screens keep equal category cards and two-column product cards in bo
   assert.ok(storefront.includes('href="#featured"'));
   assert.ok(storefront.includes("categoryIconPath(category.name_en)"));
 });
+test("category lookup is initialized before first non-empty catalog render", () => {
+  // The empty initial category list hides the temporal-dead-zone error until
+  // the browser loads /api/catalog and React re-renders with categories.
+  const declaration = storefront.indexOf("const categoryIndex = categoryPresentationIndex;");
+  const lookup = storefront.indexOf('const selectedFilter = filter === "mifi"');
+  assert.ok(declaration >= 0, "category index lookup should be declared");
+  assert.ok(lookup > declaration, "initialize categoryIndex before evaluating selectedFilter");
+  assert.ok(storefront.includes("categories.find((category) => categoryIndex(category.name_en) === 0)"));
+});
 test("real checkout is described accurately in both languages", () => {
   assert.equal(dictionaries.en.checkoutTitle, "Guest checkout");
   assert.ok(!dictionaries.en.cartNoCheckout.includes("not available yet"));
