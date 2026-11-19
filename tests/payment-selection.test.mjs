@@ -48,9 +48,9 @@ test("only COD and MMQR are valid payment preferences", () => {
     assert.equal(payment.isPaymentMethod(value), false);
 });
 test("only MMQR enables post-order uploads and requires manual verification", () => {
-  assert.equal(payment.PAYMENT_PREVIEW.cod.showQrPlaceholder, false);
+  assert.equal(payment.PAYMENT_PREVIEW.cod.showPostOrderInstructions, false);
   assert.equal(payment.PAYMENT_PREVIEW.cod.screenshotUploadEnabled, false);
-  assert.equal(payment.PAYMENT_PREVIEW.mmqr.showQrPlaceholder, true);
+  assert.equal(payment.PAYMENT_PREVIEW.mmqr.showPostOrderInstructions, true);
   assert.equal(payment.PAYMENT_PREVIEW.mmqr.screenshotUploadEnabled, true);
   assert.equal(payment.PAYMENT_PREVIEW.mmqr.requiresManualVerification, true);
 });
