@@ -294,6 +294,8 @@ test("COD, final payments and missing evidence cannot be verified or rejected", 
     { payment_status: "verified" },
     { payment_status: "rejected" },
     { payment_screenshot_path: null },
+    { order_status: "cancelled" },
+    { order_status: "delivered" },
   ]) {
     const { calls, route } = setup({ order });
     const response = await route("payment-status").PATCH(
@@ -337,6 +339,20 @@ test("unreadable evidence blocks a decision; races and uncertain writes require 
     if (options.missingFile) assert.deepEqual(calls.updates, []);
   }
 });
+test("payment verification compare-and-set guards against simultaneous cancellation", async () => {
+  const { calls, route } = setup({ atomic: true });
+  const response = await route("payment-status").PATCH(
+    request("payment-status", {
+      method: "PATCH",
+      body: { order_id: 42, payment_status: "verified" },
+    }),
+  );
+  assert.equal(response.status, 200);
+  assert.ok(calls.filters.some((entry) =>
+    JSON.stringify(entry) === JSON.stringify(["order_status", "processing"]),
+  ));
+});
+
 test("cross-origin decisions are blocked before storage or writes", async () => {
   const { calls, route } = setup();
   const response = await route("payment-status").PATCH(
