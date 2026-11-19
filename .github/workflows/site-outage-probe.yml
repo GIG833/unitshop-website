@@ -1,0 +1,31 @@
+name: Diagnose UNITSHOP public website availability
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Public DNS and HTTPS probe (no secrets)
+        shell: bash
+        run: |
+          set +e
+          for host in www.unitshopmm.com unitshopmm.com unitshop-website-2apve8wd5-gig-d1c7.vercel.app www.google.com; do
+            echo "::group::PROBE $host"
+            echo "DNS A:"
+            dig +time=3 +tries=1 "$host" A +noall +answer +comments | tail -12
+            echo "DNS CNAME:"
+            dig +time=3 +tries=1 "$host" CNAME +noall +answer +comments | tail -12
+            echo "HTTP:"
+            curl -4 -ILsS --max-time 14 -w "HTTP_CODE=%{http_code} REMOTE_IP=%{remote_ip} SSL_VERIFY=%{ssl_verify_result} URL_EFFECTIVE=%{url_effective}\n" "https://$host/" | tail -24
+            echo "::endgroup::"
+          done
+          echo "::group::Authoritative DNS"
+          dig +time=3 +tries=1 unitshopmm.com NS +noall +answer +comments | tail -12
+          echo "::endgroup::"
