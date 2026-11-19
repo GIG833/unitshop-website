@@ -7,6 +7,7 @@ import {
   addItem,
   changeQuantity,
   removeItem,
+  removePurchasedItems,
   type CartEntry,
 } from "./model";
 
@@ -78,5 +79,7 @@ export function useCart() {
     setQuantity: (id: number, quantity: number) =>
       update((entries) => changeQuantity(entries, id, quantity)),
     remove: (id: number) => update((entries) => removeItem(entries, id)),
+    removePurchased: (purchased: readonly CartEntry[]) =>
+      update((entries) => removePurchasedItems(entries, purchased)),
   };
 }
