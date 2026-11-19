@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Brand } from "./brand";
 import { PaymentSelection } from "./payment-selection";
-import { PaymentScreenshotUpload } from "./payment-screenshot-upload";
 import {
   isPaymentMethod,
   type PaymentMethod,
@@ -32,6 +32,7 @@ type CatalogueState =
 export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   const [locale, setLocale] = useState(initialLocale);
   const cart = useCart();
+  const router = useRouter();
   const [details, setDetails] = useState<GuestDetails>({ ...EMPTY_GUEST });
   const [errors, setErrors] = useState<GuestErrors>({});
 
@@ -154,6 +155,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
         throw new Error("Unable to start guest session.");
       }
 
+      const orderedEntries = cart.entries.map((entry) => ({ productId: entry.productId, quantity: entry.quantity }));
       const orderPayload = {
         customer_name: details.fullName.trim(),
         customer_phone: details.phone.trim(),
@@ -161,7 +163,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
         delivery_address: details.address.trim(),
         delivery_notes: details.notes.trim(),
         payment_method: paymentMethod,
-        items: cart.entries.map((entry) => ({
+        items: orderedEntries.map((entry) => ({
           product_id: entry.productId,
           quantity: entry.quantity,
         })),
@@ -199,7 +201,14 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
         throw new Error(result.message || "Unable to place order.");
       }
 
+      if (!Number.isSafeInteger(result.receipt.order_id) || result.receipt.order_id <= 0) {
+        throw new Error("Unable to confirm order number. Please check My Orders before retrying.");
+      }
       setOrderReceipt(result.receipt);
+      // Clear only successfully purchased quantities. Concurrent cart edits
+      // from another tab remain in the cart.
+      cart.removePurchased(orderedEntries);
+      router.replace(`/orders/confirmation/${result.receipt.order_id}?lang=${locale}`);
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : "Unable to place order.",
@@ -398,45 +407,12 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
 
             {orderReceipt && (
               <div role="status" className="catalog-state">
-                <h2>
-                  {locale === "my"
-                    ? "Order တင်ခြင်း အောင်မြင်ပါသည်"
-                    : "Order placed successfully"}
-                </h2>
-                <p>
-                  Order Number: <strong>#{orderReceipt.order_id}</strong>
-                </p>
-                <p>
-                  Total:{" "}
-                  <strong>
-                    {formatPrice(orderReceipt.total_amount, locale)}
-                  </strong>
-                </p>
-                <p>
-                  Payment: <strong>{orderReceipt.payment_method}</strong>
-                </p>
-
-                <p>
-                  Payment Status:{" "}
-                  <strong>
-                    {orderReceipt.payment_status === "pending"
-                      ? locale === "my"
-                        ? "ငွေပေးချေမှု စစ်ဆေးရန် ကျန်ရှိနေသည်"
-                        : "Pending verification"
-                      : orderReceipt.payment_status}
-                  </strong>
-                </p>
-
-                <p>
-                  Status: <strong>{orderReceipt.order_status}</strong>
-                </p>
-                {orderReceipt.payment_method === "MMQR" && (
-                  <PaymentScreenshotUpload
-                    key={String(orderReceipt.order_id)}
-                    orderId={String(orderReceipt.order_id)}
-                    locale={locale}
-                  />
-                )}
+                <h2>{locale === "my" ? "အော်ဒါတင်ပြီးပါပြီ" : "Order placed successfully"}</h2>
+                <p>Order #{orderReceipt.order_id}</p>
+                <p>{locale === "my" ? "အော်ဒါအတည်ပြုချက်ကို ဖွင့်နေပါသည်။ ဤအော်ဒါကို ထပ်မတင်ပါနှင့်။" : "Opening your order confirmation. Do not place this order again."}</p>
+                <Link className="text-link" href={`/orders/confirmation/${orderReceipt.order_id}?lang=${locale}`}>
+                  {locale === "my" ? "အော်ဒါအတည်ပြုချက် ကြည့်ရန်" : "Open order confirmation"}
+                </Link>
               </div>
             )}
           </form>
