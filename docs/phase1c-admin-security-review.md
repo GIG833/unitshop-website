@@ -15,8 +15,8 @@
 - Existing admin dashboard links directly to Products and Orders.
 - Automatic tests cover valid/invalid transitions, origin/body validation, payment prerequisites and status races.
 
-## Critical LIMITS — requires inspecting the live Supabase project
-This repository does **not** contain the active `create_guest_order`, `verify_guest_order_ownership`, `is_admin` implementation, the full `orders` / line-items DDL, or full RLS policies. Do not claim a complete security certification based on this branch alone.
+## Live Supabase review completed (read-only)
+The connected UNITSHOP website Supabase project was inspected without modifying data, permissions or schema. The live schema **does have** `public.order_items` and its historical order-line snapshots; this PR now queries those snapshots through the existing `orders` foreign key. The production RPCs and RLS/grants were also read and audited. See [`phase1c-admin-security-audit.md`](phase1c-admin-security-audit.md) for verified findings and remaining gaps. This review is **not** a complete security certification.
 
 Run `supabase/security-audit-readonly.sql` privately using a trusted Supabase SQL Editor session. Inspect:
 1. Whether `orders`, line-items, `guest_order_requests`, and payment screenshot metadata have correct RLS and table grants.
@@ -24,7 +24,7 @@ Run `supabase/security-audit-readonly.sql` privately using a trusted Supabase SQ
 3. Whether guest ownership RPCs are restricted to service_role, have safe `SECURITY DEFINER` search paths, scope hash checks, and cannot enumerate other guests' orders.
 4. Whether `is_admin` correctly ties authorization to the authenticated user, and whether direct client writes cannot bypass important payment/order transitions.
 5. Whether `payment-screenshots` bucket is private, storage policies deny anonymous reads, and service keys are never in client bundles.
-6. Which actual table stores ordered products, quantities and *price-at-purchase snapshots*. The item schema is **not evidenced in this repository**, so product line details are deliberately not queried by this PR.
+6. Historical ordered products are stored in `public.order_items` with `product_name`, `quantity`, `unit_price`, and `subtotal`. This PR includes those in the authenticated admin order response.
 7. Whether backup/restore and audit-logging policies satisfy the shop's requirements.
 
 The SQL file contains SELECT statements only: it must not change grants, RLS, database schema, customer rows or payment state. Do not paste personal customer data or credentials into public issues or PR comments.
