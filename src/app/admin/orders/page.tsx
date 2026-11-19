@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { AdminPaymentReview } from "@/components/admin-payment-review";
-import { availableOrderTransitions } from "@/features/admin/order-workflow";
+import { availableOrderTransitions, canChangeOrderStatus } from "@/features/admin/order-workflow";
 
 type AdminOrder = {
   id: number;
@@ -85,9 +85,9 @@ export default function AdminOrdersPage() {
   async function updateOrderStatus(id: number, next: string) {
     if (updatingId !== null) return;
     const order = orders.find((entry) => entry.id === id);
-    if (!order || !availableOrderTransitions(
-      order.order_status, order.payment_method, order.payment_status,
-    ).includes(next as never)) return;
+    if (!order || !canChangeOrderStatus(
+      order.order_status, next, order.payment_method, order.payment_status,
+    )) return;
 
     if (!window.confirm(`Change order #${id} from ${order.order_status} to ${next}?`)) return;
     setUpdatingId(id);
