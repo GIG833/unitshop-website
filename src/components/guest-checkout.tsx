@@ -9,6 +9,7 @@ import {
   type PaymentMethod,
 } from "@/features/checkout/payment";
 import { useCart } from "@/features/cart/use-cart";
+import { readPendingOrderKey, storePendingOrderKey, clearPendingOrderKey } from "@/features/checkout/order-attempt";
 import { totalMMK, type CartEntry } from "@/features/cart/model";
 import {
   localizedText,
@@ -40,6 +41,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [orderKeyConflict, setOrderKeyConflict] = useState(false);
 
   const [orderReceipt, setOrderReceipt] = useState<{
     order_id: number;
@@ -52,7 +54,6 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   const orderKeyRef = useRef<string | null>(null);
   const submittingRef = useRef(false);
 
-  const orderPayloadRef = useRef<string | null>(null);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
@@ -129,7 +130,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
   }
 
   async function submitOrder() {
-    if (submittingRef.current || submitting || orderReceipt || !canValidate)
+    if (submittingRef.current || submitting || orderReceipt || orderKeyConflict || !canValidate)
       return;
 
     const validationErrors = validateGuest(details);
@@ -169,17 +170,24 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
         })),
       };
 
-      const payloadSignature = JSON.stringify(orderPayload);
-
-      if (
-        orderPayloadRef.current !== payloadSignature ||
-        !orderKeyRef.current
-      ) {
-        orderKeyRef.current = crypto.randomUUID();
-        orderPayloadRef.current = payloadSignature;
+      // A request can commit successfully even when the browser loses its
+      // response. Reuse the SAME key after refresh, never automatically mint
+      // a new key merely because the customer edited the form.
+      let key = orderKeyRef.current;
+      if (!key) {
+        try {
+          key = readPendingOrderKey(sessionStorage);
+        } catch {
+          // Private browsing may block storage; in-memory retry still works.
+        }
       }
-
-      const key = orderKeyRef.current;
+      if (!key) key = crypto.randomUUID();
+      orderKeyRef.current = key;
+      try {
+        storePendingOrderKey(sessionStorage, key);
+      } catch {
+        // The key remains stable for retries until this page is closed.
+      }
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -196,14 +204,25 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
 
       if (!response.ok || !result.success || !result.receipt) {
         if (response.status === 409) {
-          orderKeyRef.current = null;
+          // A different payload may have reused a previous request key.
+          // Never rotate automatically: that could duplicate a paid order.
+          setOrderKeyConflict(true);
+          throw new Error(
+            "A previous order request may already exist. Check My Orders before starting a new attempt.",
+          );
         }
-        throw new Error(result.message || "Unable to place order.");
+        throw new Error(result.message || "Unable to confirm order. Check My Orders before retrying.");
       }
 
       if (!Number.isSafeInteger(result.receipt.order_id) || result.receipt.order_id <= 0) {
         throw new Error("Unable to confirm order number. Please check My Orders before retrying.");
       }
+      try {
+        clearPendingOrderKey(sessionStorage);
+      } catch {
+        // A confirmed receipt is authoritative even when storage is blocked.
+      }
+      orderKeyRef.current = null;
       setOrderReceipt(result.receipt);
       // Clear only successfully purchased quantities. Concurrent cart edits
       // from another tab remain in the cart.
@@ -238,7 +257,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
       return;
     }
 
-    if (canValidate && !submitting && !orderReceipt) {
+    if (canValidate && !submitting && !orderReceipt && !orderKeyConflict) {
       void submitOrder();
     }
   }
@@ -380,7 +399,7 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
               className="button-primary"
               type="submit"
 
-              disabled={!canValidate || submitting || orderReceipt !== null}
+              disabled={!canValidate || submitting || orderReceipt !== null || orderKeyConflict}
             >
               {submitting
                 ? locale === "my"
@@ -392,9 +411,33 @@ export function GuestCheckout({ initialLocale }: { initialLocale: Locale }) {
             </button>
 
             {submitError && (
-              <p role="alert" className="checkout-field-error">
-                {submitError}
-              </p>
+              <div role="alert" className="checkout-field-error">
+                <p>{submitError}</p>
+                <p>
+                  {locale === "my"
+                    ? "Network ပြတ်သွားလျှင် အော်ဒါတင်ပြီးသား ဖြစ်နိုင်ပါသည်။ အော်ဒါအသစ် ထပ်မတင်မီ ကျွန်ုပ်၏ အော်ဒါများကို အရင်စစ်ပါ။"
+                    : "A network interruption can hide a successful order. Check My Orders before placing another order."}
+                </p>
+                <Link className="text-link" href={`/my-orders?lang=${locale}`}>
+                  {locale === "my" ? "ကျွန်ုပ်၏ အော်ဒါများ စစ်ရန်" : "Check My Orders"}
+                </Link>
+                {orderKeyConflict && (
+                  <button
+                    type="button"
+                    className="text-link"
+                    onClick={() => {
+                      try { clearPendingOrderKey(sessionStorage); } catch {}
+                      orderKeyRef.current = null;
+                      setOrderKeyConflict(false);
+                      setSubmitError(null);
+                    }}
+                  >
+                    {locale === "my"
+                      ? "အော်ဒါများ စစ်ပြီးပါပြီ — အော်ဒါအသစ် တင်ရန်"
+                      : "I checked My Orders — start a new order attempt"}
+                  </button>
+                )}
+              </div>
             )}
 
             {submitting && (
