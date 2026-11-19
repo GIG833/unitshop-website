@@ -13,21 +13,22 @@ export const dictionaries = {
     heroAccent: "better connected.",
     intro:
       "From everyday WiFi to a smarter home. Discover electronics that bring your people, places and possibilities closer.",
-    browse: "Explore categories",
-    discover: "Discover UNITSHOP",
+    browse: "Shop products",
+    discover: "Browse categories",
     heroLabel: "EVERYDAY CONNECTIONS",
     heroCaption: "A little tech. A world of possibilities.",
     categoryEyebrow: "FIND YOUR EVERYDAY ESSENTIALS",
     categoryTitle: "What connects you?",
     categoryIntro:
       "Explore a world of practical technology, one category at a time.",
-    categoryNames: ["MiFi", "Routers", "WiFi Cards", "CCTV", "Gadgets"],
+    categoryNames: ["MiFi", "Routers", "WiFi Cards", "CCTV", "Gadgets", "Power Banks"],
     categoryDescriptions: [
       "Connection on the go",
       "Bring your home together",
       "Upgrade your connection",
       "Keep an eye on what matters",
       "Little things. Big possibilities.",
+      "Power for your devices",
     ],
     collection: "THE UNITSHOP COLLECTION",
     featured: "Meet your next essentials",
@@ -106,11 +107,11 @@ export const dictionaries = {
       "Place the MMQR order first. Screenshot upload becomes available under your order receipt.",
     paymentManualVerification:
       "An admin must manually verify MMQR payment. Uploading a screenshot does not confirm or verify payment.",
-    checkoutTitle: "Guest checkout preview",
-    checkoutContinue: "Guest checkout preview",
+    checkoutTitle: "Guest checkout",
+    checkoutContinue: "Continue to checkout",
     checkoutBack: "Back to cart",
     checkoutPreview:
-      "Preview only: no order is created, no details are sent, and no payment is collected.",
+      "Review your delivery details and payment method before placing an order.",
     checkoutGuest: "Delivery details",
     checkoutPrivacy:
       "No account needed. Placing an order sends these details to UNITSHOP for order fulfilment.",
@@ -127,13 +128,13 @@ export const dictionaries = {
     checkoutFixErrors: "Please correct the highlighted fields.",
     checkoutValidate: "Validate details",
     checkoutValidated:
-      "The details pass local validation. No order has been placed and your information has not been sent.",
+      "Delivery details validated. Your order is not placed until you submit checkout.",
     checkoutSummary: "Order summary",
     checkoutUnavailable:
       "Some products are unavailable. Return to your cart to remove them before checking the details. No order total is shown until all items can be verified.",
     checkoutTotal: "Order total (products only)",
     checkoutFees:
-      "Delivery fees are not calculated in this preview. Prices reflect the latest successful product check and may change.",
+      "Delivery fees are not included. Product prices reflect the latest verification and may change until your order is accepted.",
     checkoutEach: "each",
     checkoutEditCart: "Review or edit cart",
     cartTitle: "Shopping cart",
@@ -159,7 +160,7 @@ export const dictionaries = {
     cartExcluded:
       "Unavailable products are excluded from this total. Please remove them from your cart.",
     cartNoCheckout:
-      "This cart does not reserve stock. Checkout and payments are not available yet.",
+      "Adding items does not reserve stock. COD and MMQR are available at checkout; delivery fees are confirmed separately.",
   },
   my: {
     preview: "သင့်ချိတ်ဆက်မှုအသစ်အတွက် အကြိုမိတ်ဆက်",
@@ -174,8 +175,8 @@ export const dictionaries = {
     heroAccent: "ပိုမိုချိတ်ဆက်လိုက်ပါ။",
     intro:
       "နေ့စဉ် WiFi မှ စမတ်အိမ်အထိ။ လူများ၊ နေရာများနှင့် အခွင့်အလမ်းများကို ပိုမိုနီးစပ်စေမည့် အီလက်ထရွန်နစ်ပစ္စည်းများကို လေ့လာပါ။",
-    browse: "အမျိုးအစားများ ကြည့်ရန်",
-    discover: "UNITSHOP ကို လေ့လာရန်",
+    browse: "ပစ္စည်းများ ဝယ်ယူရန်",
+    discover: "အမျိုးအစားများ ကြည့်ရန်",
     heroLabel: "နေ့စဉ် ချိတ်ဆက်မှုများ",
     heroCaption: "နည်းပညာလေးတစ်ခုမှ အခွင့်အလမ်းများစွာဆီသို့။",
     categoryEyebrow: "နေ့စဉ်လိုအပ်ချက်များကို ရှာဖွေပါ",
@@ -187,6 +188,7 @@ export const dictionaries = {
       "WiFi ကတ်များ",
       "လုံခြုံရေးကင်မရာများ",
       "အသုံးအဆောင်များ",
+      "Power Bank များ",
     ],
     categoryDescriptions: [
       "သွားလေရာ ချိတ်ဆက်ပါ",
@@ -194,6 +196,7 @@ export const dictionaries = {
       "ချိတ်ဆက်မှုကို မြှင့်တင်ပါ",
       "အရေးကြီးသောအရာများကို စောင့်ကြည့်ပါ",
       "ပစ္စည်းလေးများမှ အခွင့်အလမ်းများဆီ",
+      "သင့်စက်ပစ္စည်းများအတွက် အားသွင်းရန်",
     ],
     collection: "UNITSHOP ပစ္စည်းစုစည်းမှု",
     featured: "သင့်နေ့စဉ်အတွက် ပစ္စည်းများ",
@@ -269,11 +272,11 @@ export const dictionaries = {
       "MMQR အော်ဒါကို အရင်တင်ပါ။ အော်ဒါပြေစာအောက်တွင် စခရင်ရှော့တင်ရန် နေရာ ပေါ်လာပါမည်။",
     paymentManualVerification:
       "MMQR ငွေပေးချေမှုကို အက်ဒမင်က ကိုယ်တိုင် စစ်ဆေးအတည်ပြုရမည်။ စခရင်ရှော့တင်ခြင်းဖြင့် ငွေပေးချေမှု အတည်မဖြစ်ပါ။",
-    checkoutTitle: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
-    checkoutContinue: "ဧည့်သည်အဖြစ် အော်ဒါအကြိုကြည့်ရန်",
+    checkoutTitle: "ဧည့်သည်အဖြစ် အော်ဒါတင်ရန်",
+    checkoutContinue: "အော်ဒါတင်ရန် ဆက်သွားမည်",
     checkoutBack: "ဈေးခြင်းသို့ ပြန်သွားရန်",
     checkoutPreview:
-      "အကြိုကြည့်ရှုမှုသာ ဖြစ်သည်။ အော်ဒါ မဖန်တီးပါ၊ အချက်အလက် မပို့ပါ၊ ငွေမကောက်ခံပါ။",
+      "အော်ဒါမတင်မီ ပို့ဆောင်ရန် အချက်အလက်နှင့် ငွေပေးချေမှုနည်းလမ်းကို စစ်ဆေးနိုင်ပါသည်။",
     checkoutGuest: "ပို့ဆောင်ရန် အချက်အလက်များ",
     checkoutPrivacy:
       "အကောင့်မလိုပါ။ အော်ဒါတင်သည့်အခါ ဤအချက်အလက်များကို အော်ဒါပို့ဆောင်ရန် UNITSHOP သို့ ပေးပို့မည်။",
@@ -290,13 +293,13 @@ export const dictionaries = {
     checkoutFixErrors: "ဖော်ပြထားသော အမှားများကို ပြင်ဆင်ပါ။",
     checkoutValidate: "အချက်အလက် စစ်ဆေးရန်",
     checkoutValidated:
-      "အချက်အလက်များသည် စာမျက်နှာပေါ် စစ်ဆေးမှုကို အောင်မြင်ပါသည်။ အော်ဒါ မတင်ရသေးပါ၊ သင့်အချက်အလက်ကို မပို့ထားပါ။",
+      "အချက်အလက်များ စစ်ဆေးပြီးပါပြီ။ Checkout အတည်ပြုပြီးမှ အော်ဒါတင်မည်။",
     checkoutSummary: "အော်ဒါ အကျဉ်းချုပ်",
     checkoutUnavailable:
       "အချို့ပစ္စည်းများကို မရရှိနိုင်ပါ။ အချက်အလက်မစစ်ဆေးမီ ဈေးခြင်းသို့ ပြန်၍ ဖယ်ရှားပါ။ ပစ္စည်းအားလုံးကို စစ်ဆေးနိုင်သည်အထိ စုစုပေါင်းကို မဖော်ပြပါ။",
     checkoutTotal: "စုစုပေါင်း (ပစ္စည်းတန်ဖိုးသာ)",
     checkoutFees:
-      "ဤအကြိုကြည့်ရှုမှုတွင် ပို့ဆောင်ခ မတွက်ထားပါ။ ဈေးနှုန်းများသည် နောက်ဆုံးစစ်ဆေးမှုအချိန်အတိုင်း ဖြစ်ပြီး ပြောင်းလဲနိုင်ပါသည်။",
+      "ပစ္စည်းတန်ဖိုးတွင် ပို့ဆောင်ခ မပါဝင်ပါ။ အော်ဒါအတည်ပြုမချင်း ဈေးနှုန်းများ ပြောင်းလဲနိုင်ပါသည်။",
     checkoutEach: "တစ်ခုလျှင်",
     checkoutEditCart: "ဈေးခြင်းကို ပြန်ကြည့်ရန် / ပြင်ရန်",
     cartTitle: "ဈေးခြင်းတောင်း",
@@ -322,6 +325,6 @@ export const dictionaries = {
     cartExcluded:
       "မရရှိနိုင်သော ပစ္စည်းများကို စုစုပေါင်းတွင် မထည့်ထားပါ။ ဈေးခြင်းမှ ဖယ်ရှားပေးပါ။",
     cartNoCheckout:
-      "ဈေးခြင်းထဲသို့ ထည့်ခြင်းဖြင့် ပစ္စည်းကို ကြိုတင်သီးသန့် မထားပါ။ အော်ဒါတင်ခြင်းနှင့် ငွေပေးချေခြင်းကို မရရှိနိုင်သေးပါ။",
+      "ဈေးခြင်းထဲသို့ ထည့်ခြင်းဖြင့် ပစ္စည်းကို ကြိုတင်သီးသန့် မထားပါ။ Checkout တွင် COD သို့မဟုတ် MMQR ရွေးချယ်နိုင်ပြီး ပို့ဆောင်ခကို သီးခြားအတည်ပြုပါမည်။",
   },
 } as const;
