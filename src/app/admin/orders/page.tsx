@@ -20,6 +20,7 @@ type AdminOrder = {
   has_payment_screenshot: boolean;
   order_status: string;
   created_at: string;
+  order_items?: Array<{product_name: string;quantity: number;unit_price: number;subtotal: number}>;
 };
 
 export default function AdminOrdersPage() {
@@ -191,6 +192,22 @@ export default function AdminOrdersPage() {
                   <div><dt className="font-semibold">Products total</dt><dd>{Number(order.total_amount).toLocaleString("en-US")} Ks</dd></div>
                   <div><dt className="font-semibold">Payment</dt><dd>{order.payment_method} · {order.payment_status}</dd></div>
                 </dl>
+                <section className="mt-4 border-t border-slate-200 pt-4">
+                  <h3 className="font-semibold text-slate-900">Ordered Products</h3>
+                  {Array.isArray(order.order_items) && order.order_items.length > 0 ? (
+                    <ul className="mt-2 space-y-2">
+                      {order.order_items.map((item, index) => (
+                        <li key={index} className="rounded-lg bg-slate-50 p-3 text-sm">
+                          <p className="font-medium break-words">{item.product_name}</p>
+                          <p className="text-slate-600">
+                            {item.quantity} × {Number(item.unit_price).toLocaleString("en-US")} Ks
+                            {" · "}Subtotal: {Number(item.subtotal).toLocaleString("en-US")} Ks
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p className="mt-2 text-sm text-slate-600">No order item details found.</p>}
+                </section>
                 {order.payment_method === "MMQR" && order.payment_status !== "verified" && (
                   <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
                     MMQR payment is not verified. Do not confirm or fulfil this order until the merchant transaction has been checked.
