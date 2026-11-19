@@ -8,6 +8,7 @@ import {
   type Catalog,
 } from "@/features/catalog/data";
 import { ProductCard } from "./product-card";
+import { PromotionBanners } from "./promotion-banners";
 import { categoryPresentationIndex, categoryIconPath } from "@/features/catalog/category-presentation";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 
@@ -221,6 +222,7 @@ export function Storefront({
             </span>
           </div>
         </section>
+        <PromotionBanners locale={locale} />
         <section
           id="categories"
           className="category-section container"
