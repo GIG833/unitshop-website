@@ -13,19 +13,24 @@ export function ProductCard({
   category,
   locale,
   noImage,
+  detailsLabel,
 }: {
   product: Product;
   category: string;
   locale: Locale;
   noImage: string;
+  detailsLabel: string;
 }) {
   const [failedImage, setFailedImage] = useState<string | null>(null);
   const name = localizedText(product.name_en, product.name_mm, locale);
+  // The detail page retains the complete source description. On the catalogue
+  // the preview is concise and cannot create extremely tall product cards.
   const description = localizedText(
     product.description_en,
     product.description_mm,
     locale,
-  );
+  ).replace(/\s+/g, " ").trim();
+
   return (
     <article className="product-card">
       <Link
@@ -35,13 +40,13 @@ export function ProductCard({
       >
         <div className="product-image">
           {product.image_url && failedImage !== product.image_url ? (
-            // Existing Supabase public image URLs need no new Next.js remote-host configuration.
+            // Preserve the exact image supplied by the shop, including packaging.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={product.image_url}
               alt={name}
-              width={240}
-              height={190}
+              width={320}
+              height={240}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
@@ -55,7 +60,8 @@ export function ProductCard({
           <p className="product-category">{category}</p>
           <h3>{name}</h3>
           <p className="product-price">{formatPrice(product.price, locale)}</p>
-          {description && <p className="product-description">{description}</p>}
+          {description && <p className="product-card-summary">{description}</p>}
+          <span className="product-card-cta">{detailsLabel}</span>
         </div>
       </Link>
     </article>
