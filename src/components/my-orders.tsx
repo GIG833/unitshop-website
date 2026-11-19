@@ -41,6 +41,7 @@ export function MyOrders({ initialLocale }: { initialLocale: Locale }) {
          <p><strong>{my ? "စုစုပေါင်း" : "Total"}:</strong> {Number(order.total_amount).toLocaleString("en-US")} MMK</p>
          <p><strong>{my ? "ငွေပေးချေမှု" : "Payment"}:</strong> {order.payment_method} · {order.payment_status}</p>
          <p><strong>{my ? "အော်ဒါအခြေအနေ" : "Order status"}:</strong> {order.order_status}</p>
+         <Link className="text-link" href={`/orders/confirmation/${order.id}?lang=${locale}`}>{my ? "အော်ဒါအသေးစိတ်ကြည့်ရန် / MMQR ဆက်လုပ်ရန်" : "View order / continue MMQR payment"}</Link>
        </article>)}</div></div>}
     </main>
   </>;
