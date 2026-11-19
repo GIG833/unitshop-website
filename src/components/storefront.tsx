@@ -8,10 +8,22 @@ import {
   type Catalog,
 } from "@/features/catalog/data";
 import { ProductCard } from "./product-card";
+import { categoryPresentationIndex, categoryIconPath } from "@/features/catalog/category-presentation";
 import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 
 function Arrow() {
-  return <span aria-hidden="true">↗</span>;
+  return (
+    <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+function MenuIcon({ open }: { open: boolean }) {
+  return (
+    <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      {open ? <path d="M5 5l14 14M19 5L5 19" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+    </svg>
+  );
 }
 export function Storefront({
   initialLocale = "en",
@@ -32,12 +44,10 @@ export function Storefront({
   const [request, setRequest] = useState(0);
   const { categories, products } = catalog;
   const selectedFilter = filter === "mifi"
-    ? categories.find((category) => category.name_en.trim().toLowerCase() === "mifi")?.id ?? -1
+    ? categories.find((category) => categoryIndex(category.name_en) === 0)?.id ?? -1
     : filter;
   const shown = filterProducts(products, selectedFilter);
-  const knownCategories = ["mifi", "routers", "wifi cards", "cctv", "gadgets"];
-  const categoryIndex = (name: string) =>
-    knownCategories.indexOf(name.trim().toLowerCase());
+  const categoryIndex = categoryPresentationIndex;
   const categoryName = (category: Catalog["categories"][number]) => {
     const index = categoryIndex(category.name_en);
     return index >= 0 ? t.categoryNames[index] : category.name_en;
@@ -74,7 +84,7 @@ export function Storefront({
       <a className="skip-link" href="#main">
         {t.skip}
       </a>
-      <header id="top" className="header">
+      <header id="top" className="header storefront-header">
         <div className="container header-inner">
           <a href="#top" aria-label="UNITSHOP" onClick={closeMenu}>
             <Brand />
@@ -85,9 +95,14 @@ export function Storefront({
             <a href="#about">{t.about}</a>
           </nav>
           <div className="header-actions">
-            <Link className="cart-nav" href={`/my-orders?lang=${locale}`}>{locale === "my" ? "ကျွန်ုပ်၏ အော်ဒါများ" : "My Orders"}</Link>
-            <Link className="cart-nav" href={`/cart?lang=${locale}`}>
-              {t.cartTitle}
+            <Link className="cart-nav account-shortcut" href={`/my-orders?lang=${locale}`}>{locale === "my" ? "ကျွန်ုပ်၏ အော်ဒါများ" : "My Orders"}</Link>
+            <Link className="cart-nav cart-shortcut" href={`/cart?lang=${locale}`} aria-label={t.cartTitle} title={t.cartTitle}>
+              <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 4h2l2 11h12l2-8H6" />
+                <circle cx="9" cy="20" r="1" />
+                <circle cx="18" cy="20" r="1" />
+              </svg>
+              <span className="cart-shortcut-text">{t.cartTitle}</span>
             </Link>
             <div
               className="language-switch"
@@ -115,8 +130,8 @@ export function Storefront({
               aria-controls="mobile-navigation"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? t.close : t.menu}
-              <span aria-hidden="true">{menuOpen ? " ×" : " ☰"}</span>
+              <span className="menu-label">{menuOpen ? t.close : t.menu}</span>
+              <MenuIcon open={menuOpen} />
             </button>
           </div>
         </div>
@@ -143,6 +158,12 @@ export function Storefront({
             <a onClick={closeMenu} href="#about">
               {t.about}
             </a>
+            <Link href={`/my-orders?lang=${locale}`} onClick={closeMenu}>
+              {locale === "my" ? "ကျွန်ုပ်၏ အော်ဒါများ" : "My Orders"}
+            </Link>
+            <Link href={`/cart?lang=${locale}`} onClick={closeMenu}>
+              {t.cartTitle}
+            </Link>
           </nav>
         )}
       </header>
@@ -160,17 +181,17 @@ export function Storefront({
             </h1>
             <p className="hero-intro">{t.intro}</p>
             <div className="hero-links">
-              <a className="button-primary" href="#categories">
+              <a className="button-primary" href="#featured">
                 {t.browse}
                 <Arrow />
               </a>
-              <a className="text-link" href="#about">
+              <a className="text-link" href="#categories">
                 {t.discover}
                 <Arrow />
               </a>
             </div>
             <div className="hero-footnote">
-              <span aria-hidden="true">✳</span> {t.categoryNames[0]}{" "}
+              <span className="hero-footnote-mark" aria-hidden="true" /> {t.categoryNames[0]}{" "}
               <span> / </span> {t.categoryNames[1]} <span> / </span>{" "}
               {t.categoryNames[3]} <span> / </span> {t.categoryNames[4]}
             </div>
@@ -179,7 +200,7 @@ export function Storefront({
             <div className="art-top">
               <span className="status-dot" />
               {t.heroLabel}
-              <span className="art-number">01 / 05</span>
+              <span className="art-number">UNITSHOP</span>
             </div>
             <Image
               src="/images/a_clean_high_resolution_product_hero_scene_a_clo.png"
@@ -191,7 +212,7 @@ export function Storefront({
             />
             <div className="art-bottom">
               <span>{t.heroCaption}</span>
-              <span aria-hidden="true">↗</span>
+              <Arrow />
             </div>
             <span className="art-watermark" aria-hidden="true">
               UNITSHOP
@@ -220,7 +241,7 @@ export function Storefront({
               >
                 <div className="category-card-top">
                   <Image
-                    src={`/images/device-${Math.max(0, categoryIndex(category.name_en))}.svg`}
+                    src={categoryIconPath(category.name_en)}
                     width={88}
                     height={76}
                     alt=""
@@ -305,6 +326,7 @@ export function Storefront({
                           product={product}
                           locale={locale}
                           noImage={t.noImage}
+                          detailsLabel={t.productDetails}
                           category={(() => {
                             const category = categories.find(
                               (category) => category.id === product.category_id,
