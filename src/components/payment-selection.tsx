@@ -66,7 +66,7 @@ export function PaymentSelection({
         <p className="payment-guidance">{t.paymentCodNoScreenshot}</p>
       )}
 
-      {preview?.showQrPlaceholder && (
+      {preview?.showPostOrderInstructions && (
         <div className="payment-mmqr-info">
           <p className="payment-guidance">{t.paymentScreenshotLater}</p>
           {preview.requiresManualVerification && (
