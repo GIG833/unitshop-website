@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const { data: order, error } = await auth.client
       .from("orders")
-      .select("payment_method,payment_status,payment_screenshot_path")
+      .select("payment_method,payment_status,payment_screenshot_path,order_status")
       .eq("id", id)
       .maybeSingle();
     if (error) return adminError("Unable to check payment", 503);
@@ -63,6 +63,8 @@ export async function PATCH(request: NextRequest) {
     if (
       order.payment_method !== "MMQR" ||
       order.payment_status !== "pending" ||
+      order.order_status === "cancelled" ||
+      order.order_status === "delivered" ||
       !path
     )
       return adminError(
@@ -90,6 +92,7 @@ export async function PATCH(request: NextRequest) {
       .eq("payment_method", "MMQR")
       .eq("payment_status", "pending")
       .eq("payment_screenshot_path", path)
+      .eq("order_status", order.order_status)
       .select("id,payment_status")
       .maybeSingle();
     if (updateError)
