@@ -580,3 +580,31 @@ test("order-status PATCH rejects cross-origin, unknown fields and oversized bodi
   assert.equal(tooLarge.status, 413);
   assert.deepEqual(calls.updates, []);
 });
+
+test("admin list includes delivery fields and order item snapshots without private evidence paths", async () => {
+  const { calls, route } = setup({
+    order: {
+      customer_name: "Customer",
+      delivery_address: "Test delivery address",
+      delivery_notes: "Call on arrival",
+      order_items: [{
+        product_name: "Router",
+        quantity: 2,
+        unit_price: 20000,
+        subtotal: 40000,
+      }],
+    },
+  });
+  const response = await route("").GET(request(""));
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.orders[0].delivery_address, "Test delivery address");
+  assert.equal(result.orders[0].delivery_notes, "Call on arrival");
+  assert.deepEqual(result.orders[0].order_items, [{
+    product_name: "Router", quantity: 2, unit_price: 20000, subtotal: 40000,
+  }]);
+  assert.equal(result.orders[0].payment_screenshot_path, undefined);
+  assert.ok(calls.reads.some((call) =>
+    call.table === "orders" && call.fields.includes("order_items(product_name,quantity,unit_price,subtotal)"),
+  ));
+});
