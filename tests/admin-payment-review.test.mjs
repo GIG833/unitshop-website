@@ -587,6 +587,7 @@ test("admin list includes delivery details without private evidence paths", asyn
       customer_name: "Customer",
       delivery_address: "Test delivery address",
       delivery_notes: "Call on arrival",
+      order_items: [{ product_name: "Router", quantity: 2, unit_price: 20000, subtotal: 40000 }],
     },
   });
   const response = await route("").GET(request(""));
@@ -594,11 +595,12 @@ test("admin list includes delivery details without private evidence paths", asyn
   const result = await response.json();
   assert.equal(result.orders[0].delivery_address, "Test delivery address");
   assert.equal(result.orders[0].delivery_notes, "Call on arrival");
+  assert.deepEqual(result.orders[0].order_items, [{ product_name: "Router", quantity: 2, unit_price: 20000, subtotal: 40000 }]);
   assert.equal(result.orders[0].payment_screenshot_path, undefined);
   assert.ok(calls.reads.some((call) =>
     call.table === "orders" &&
     call.fields.includes("delivery_address") &&
     call.fields.includes("delivery_notes") &&
-    !call.fields.includes("order_items("),
+    call.fields.includes("order_items(product_name,quantity,unit_price,subtotal)"),
   ));
 });
