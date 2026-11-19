@@ -68,27 +68,9 @@ export function PaymentSelection({
 
       {preview?.showQrPlaceholder && (
         <div className="payment-mmqr-info">
-          <div className="merchant-qr-placeholder">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/unitshop-mmqr.JPG"
-              alt="GIG Merchant MMQR Payment QR Code"
-              style={{
-                width: "100%",
-                maxWidth: "320px",
-                height: "auto",
-                display: "block",
-                margin: "0 auto",
-              }}
-            />
-          </div>
-
           <p className="payment-guidance">{t.paymentScreenshotLater}</p>
-
           {preview.requiresManualVerification && (
-            <p className="payment-verification">
-              {t.paymentManualVerification}
-            </p>
+            <p className="payment-verification">{t.paymentManualVerification}</p>
           )}
         </div>
       )}
