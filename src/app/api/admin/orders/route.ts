@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const { data: orders, error } = await db
       .from("orders")
       .select(
-        "id,customer_name,customer_phone,customer_city,delivery_address,delivery_notes,total_amount,payment_method,payment_status,order_status,created_at,payment_screenshot_path",
+        "id,customer_name,customer_phone,customer_city,delivery_address,delivery_notes,total_amount,payment_method,payment_status,order_status,created_at,payment_screenshot_path,order_items(product_name,quantity,unit_price,subtotal)",
       )
       .order("created_at", { ascending: false })
       .limit(50);
