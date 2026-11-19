@@ -4,6 +4,7 @@ import {
   addItem,
   changeQuantity,
   removeItem,
+  removePurchasedItems,
   parseCart,
   totalMMK,
   loadSavedCart,
@@ -149,4 +150,18 @@ test("both languages contain cart loading, empty, error and action translations"
       "cartUnavailable",
     ])
       assert.ok(dictionaries[locale][key].length > 0);
+});
+
+test("successful order clears purchased items while preserving concurrent cart edits", () => {
+  const ordered = [{ productId: 12, quantity: 2 }, { productId: 13, quantity: 1 }];
+  assert.deepEqual(removePurchasedItems(ordered, ordered), []);
+  assert.deepEqual(removePurchasedItems([
+    { productId: 12, quantity: 3 },
+    { productId: 13, quantity: 1 },
+    { productId: 15, quantity: 1 },
+  ], ordered), [
+    { productId: 12, quantity: 1 },
+    { productId: 15, quantity: 1 },
+  ]);
+  assert.deepEqual(removePurchasedItems([{ productId: 12, quantity: 1 }], ordered), [{ productId: 12, quantity: 1 }]);
 });

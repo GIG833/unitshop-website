@@ -6,19 +6,19 @@ export function isPaymentMethod(value: unknown): value is PaymentMethod {
 }
 export const PAYMENT_PREVIEW = {
   cod: {
-    showQrPlaceholder: false,
+    showPostOrderInstructions: false,
     screenshotUploadEnabled: false,
     requiresManualVerification: false,
   },
   mmqr: {
-    showQrPlaceholder: true,
+    showPostOrderInstructions: true,
     screenshotUploadEnabled: true,
     requiresManualVerification: true,
   },
 } as const satisfies Record<
   PaymentMethod,
   {
-    showQrPlaceholder: boolean;
+    showPostOrderInstructions: boolean;
     screenshotUploadEnabled: boolean;
     requiresManualVerification: boolean;
   }

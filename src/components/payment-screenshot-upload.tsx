@@ -8,9 +8,11 @@ import { dictionaries, type Locale } from "@/lib/i18n/dictionaries";
 export function PaymentScreenshotUpload({
   orderId,
   locale,
+  onUploaded,
 }: {
   orderId: string;
   locale: Locale;
+  onUploaded?: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<
@@ -31,6 +33,7 @@ export function PaymentScreenshotUpload({
     try {
       await uploadScreenshot(orderId, file);
       setStatus("uploaded");
+      onUploaded?.();
     } catch {
       setStatus("error");
     } finally {

@@ -11,7 +11,7 @@ export const FIELD_LIMITS = {
   fullName: 100,
   phone: 40,
   city: 120,
-  address: 600,
+  address: 500,
   notes: 1000,
 } as const;
 export const EMPTY_GUEST: GuestDetails = {
