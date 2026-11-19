@@ -45,15 +45,15 @@ function createGet({ owns = true, rpcError = null, orderError = null, screenshot
       };
     },
   };
-  const module = { exports: {} };
+  const routeModule = { exports: {} };
   new Function("require", "module", "exports", transpiled)(
     (name) => name === "@/lib/supabase/server"
       ? { createServerSupabaseClient: () => client }
       : require(name),
-    module,
-    module.exports,
+    routeModule,
+    routeModule.exports,
   );
-  return { get: module.exports.GET, calls };
+  return { get: routeModule.exports.GET, calls };
 }
 const context = (id) => ({ params: Promise.resolve({ id }) });
 const request = (cookie = `unitshop_guest=${"a".repeat(64)}`) =>
