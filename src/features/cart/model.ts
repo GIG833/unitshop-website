@@ -58,6 +58,21 @@ export function changeQuantity(
 export function removeItem(entries: CartEntry[], productId: number) {
   return entries.filter((item) => item.productId !== productId);
 }
+// Remove only quantities confirmed by a successful server order. Preserve any
+// different/new items a customer added in another tab during submission.
+export function removePurchasedItems(
+  entries: CartEntry[],
+  purchased: readonly CartEntry[],
+): CartEntry[] {
+  const quantities = new Map(purchased.map((item) => [item.productId, item.quantity]));
+  return entries.flatMap((entry) => {
+    const bought = quantities.get(entry.productId);
+    if (bought === undefined || bought > entry.quantity) return [entry];
+    if (entry.quantity === bought) return [];
+    return [{ ...entry, quantity: entry.quantity - bought }];
+  });
+}
+
 export function totalMMK(lines: { price: number; quantity: number }[]) {
   return (
     lines.reduce(
