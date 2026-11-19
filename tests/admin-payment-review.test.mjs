@@ -173,6 +173,7 @@ function setup(options = {}) {
     },
   };
   mocks["@/lib/supabase/admin"] = compile("lib/supabase/admin.ts", mocks);
+  mocks["@/features/admin/order-workflow"] = compile("features/admin/order-workflow.ts", mocks);
   return {
     calls,
     order,
@@ -293,6 +294,8 @@ test("COD, final payments and missing evidence cannot be verified or rejected", 
     { payment_status: "verified" },
     { payment_status: "rejected" },
     { payment_screenshot_path: null },
+    { order_status: "cancelled" },
+    { order_status: "delivered" },
   ]) {
     const { calls, route } = setup({ order });
     const response = await route("payment-status").PATCH(
@@ -336,6 +339,20 @@ test("unreadable evidence blocks a decision; races and uncertain writes require 
     if (options.missingFile) assert.deepEqual(calls.updates, []);
   }
 });
+test("payment verification compare-and-set guards against simultaneous cancellation", async () => {
+  const { calls, route } = setup({ atomic: true });
+  const response = await route("payment-status").PATCH(
+    request("payment-status", {
+      method: "PATCH",
+      body: { order_id: 42, payment_status: "verified" },
+    }),
+  );
+  assert.equal(response.status, 200);
+  assert.ok(calls.filters.some((entry) =>
+    JSON.stringify(entry) === JSON.stringify(["order_status", "processing"]),
+  ));
+});
+
 test("cross-origin decisions are blocked before storage or writes", async () => {
   const { calls, route } = setup();
   const response = await route("payment-status").PATCH(
@@ -350,7 +367,7 @@ test("cross-origin decisions are blocked before storage or writes", async () => 
   assert.deepEqual(calls.downloads, []);
 });
 test("existing order list exposes availability only, and order-status updates remain separate", async () => {
-  const { calls, route } = setup();
+  const { calls, route } = setup({ order: { payment_status: "verified" } });
   const response = await route("").GET(request(""));
   assert.equal(response.status, 200);
   const result = await response.json();
@@ -500,4 +517,90 @@ test("rejected payment remains readable but cannot be re-verified or reset throu
   assert.equal(order.payment_status, "rejected");
   assert.equal(order.order_status, "processing");
   assert.deepEqual(calls.committed, []);
+});
+
+test("admin fulfilment blocks MMQR orders pending payment verification", async () => {
+  for (const payment_status of ["pending", "rejected"]) {
+    const { calls, route } = setup({
+      atomic: true,
+      order: { payment_status, order_status: "pending" },
+    });
+    const res = await route("").PATCH(
+      request("", { method: "PATCH", body: { order_id: 42, order_status: "confirmed" } }),
+    );
+    assert.equal(res.status, 409);
+    assert.deepEqual(calls.updates, []);
+  }
+});
+
+test("admin fulfilment enforces sequential transitions with compare-and-set", async () => {
+  const { calls, route } = setup({
+    atomic: true,
+    order: { payment_method: "COD", payment_status: "pending", order_status: "pending" },
+  });
+  const handler = route("").PATCH;
+  const jump = await handler(request("", {
+    method: "PATCH", body: { order_id: 42, order_status: "delivered" },
+  }));
+  assert.equal(jump.status, 409);
+  assert.deepEqual(calls.updates, []);
+
+  const confirmed = await handler(request("", {
+    method: "PATCH", body: { order_id: 42, order_status: "confirmed" },
+  }));
+  assert.equal(confirmed.status, 200);
+  assert.deepEqual(calls.updates, [{ order_status: "confirmed" }]);
+  for (const predicate of [["order_status", "pending"], ["payment_status", "pending"]]) {
+    assert.ok(calls.filters.some((item) => JSON.stringify(item) === JSON.stringify(predicate)));
+  }
+  const stale = await handler(request("", {
+    method: "PATCH", body: { order_id: 42, order_status: "confirmed" },
+  }));
+  assert.equal(stale.status, 409);
+});
+
+test("order-status PATCH rejects cross-origin, unknown fields and oversized bodies", async () => {
+  const { calls, route } = setup({ atomic: true, order: { payment_method: "COD", order_status: "pending" } });
+  const handler = route("").PATCH;
+  const denied = await handler(request("", {
+    method: "PATCH",
+    requestOrigin: "https://other.invalid",
+    body: { order_id: 42, order_status: "confirmed" },
+  }));
+  assert.equal(denied.status, 403);
+  const unknown = await handler(request("", {
+    method: "PATCH",
+    body: { order_id: 42, order_status: "confirmed", payment_status: "verified" },
+  }));
+  assert.equal(unknown.status, 400);
+  const tooLarge = await handler(request("", {
+    method: "PATCH",
+    body: { order_id: 42, order_status: "confirmed", padding: "x".repeat(10000) },
+  }));
+  assert.equal(tooLarge.status, 413);
+  assert.deepEqual(calls.updates, []);
+});
+
+test("admin list includes delivery details without private evidence paths", async () => {
+  const { calls, route } = setup({
+    order: {
+      customer_name: "Customer",
+      delivery_address: "Test delivery address",
+      delivery_notes: "Call on arrival",
+      order_items: [{ product_name: "Router", quantity: 2, unit_price: 20000, subtotal: 40000 }],
+    },
+  });
+  const response = await route("").GET(request(""));
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  assert.equal(result.orders[0].delivery_address, "Test delivery address");
+  assert.equal(result.orders[0].delivery_notes, "Call on arrival");
+  assert.deepEqual(result.orders[0].order_items, [{ product_name: "Router", quantity: 2, unit_price: 20000, subtotal: 40000 }]);
+  assert.equal(result.orders[0].payment_screenshot_path, undefined);
+  assert.ok(calls.reads.some((call) =>
+    call.table === "orders" &&
+    call.fields.includes("delivery_address") &&
+    call.fields.includes("delivery_notes") &&
+    call.fields.includes("order_items(product_name,quantity,unit_price,subtotal)"),
+  ));
 });
