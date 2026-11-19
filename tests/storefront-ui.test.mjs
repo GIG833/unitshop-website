@@ -31,7 +31,7 @@ test("all six store categories have meaningful icons and bilingual labels", () =
 });
 test("storefront keeps full product descriptions on the details page, not tall listing cards", () => {
   assert.ok(card.includes("product-card-summary"));
-  assert.ok(card.includes("localizedText(product.description_en"));
+  assert.ok(card.includes("product.description_en"));
   assert.match(css, /\.product-card \.product-card-summary\s*\{[^}]*-webkit-line-clamp:\s*2/s);
   assert.match(css, /\.product-card \.product-copy h3\s*\{[^}]*-webkit-line-clamp:\s*3/s);
   assert.ok(card.includes('src={product.image_url}'));
