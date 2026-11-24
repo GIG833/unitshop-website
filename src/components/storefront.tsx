@@ -35,6 +35,7 @@ export function Storefront({
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<number | "all" | "mifi">("mifi");
   const t = dictionaries[locale];
+  const telegram = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
   const [catalog, setCatalog] = useState<Catalog>({
     categories: [],
     products: [],
@@ -375,6 +376,12 @@ export function Storefront({
           >
             <h2 id="footer-contact-title">{t.contactTitle}</h2>
             <dl className="footer-contact-grid">
+              {telegram && /^[a-z0-9_]+bot$/i.test(telegram) && (
+                <div>
+                  <dt>Telegram</dt>
+                  <dd><a href={`https://t.me/${telegram}`}>{locale === "my" ? "Telegram မှာ မေးရန်" : "Ask on Telegram"}</a></dd>
+                </div>
+              )}
               <div>
                 <dt>{t.contactPhone}</dt>
                 <dd>
