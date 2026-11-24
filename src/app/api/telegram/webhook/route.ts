@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { loadCatalog } from "@/features/catalog/data";
-import { faq, productAnswer } from "@/features/telegram/support";
+import { faq, productAnswer, shoppingAnswer, handoff, offerHelp } from "@/features/telegram/support";
 
 type Message = {
   chat: { id: number; type: string };
@@ -20,10 +20,10 @@ export async function POST(request: Request) {
   if (received.length !== expected.length || !timingSafeEqual(received, expected))
     return new Response(null, { status: 403 });
 
-  async function send(chat: number | string, text: string) {
+  async function send(chat: number | string, text: string, prompt = false) {
     const response = await fetch("https://api.telegram.org/bot" + token + "/sendMessage", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chat, text, link_preview_options: { is_disabled: true } }),
+      body: JSON.stringify({ chat_id: chat, text, ...(prompt ? {reply_markup: {force_reply: true}} : {}), link_preview_options: { is_disabled: true } }),
     });
     if (!response.ok) throw new Error("Telegram delivery failed");
   }
@@ -42,20 +42,28 @@ export async function POST(request: Request) {
       await send(id, "မေးခွန်းလေးကို စာနဲ့ ရိုက်ပေးပါဗျ။");
       return new Response(null);
     }
+    const reply = message.reply_to_message;
+    const previous = !reply?.forward_origin && String(reply?.from?.id) === token.split(":")[0] ? reply?.text || "" : "";
+    const inquiry = handoff(text, previous);
+    if (inquiry) {
+      await send(staff, "UnitShop inquiry #" + id + "\n" + inquiry.slice(0, 3900));
+      await send(id, "မေးခွန်းကို ဆိုင်ဆီ ပို့ပေးထားပါပြီဗျ။ ဒီ Chat ထဲမှာ ပြန်လည်ဖြေကြားပေးပါမယ်။");
+      return new Response(null);
+    }
     let answer = faq(text);
-    if (!answer && !/^\/staff\b/i.test(text)) {
+    const conversational = !answer;
+    if (!answer) {
       try {
         const client = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
-        answer = productAnswer(text, (await loadCatalog(client)).products);
-      } catch { /* Staff can help when the public catalogue is unavailable. */ }
+        const catalog = await loadCatalog(client);
+        answer = shoppingAnswer(text, catalog, previous) || productAnswer(text, catalog.products);
+      } catch {
+        answer = offerHelp(text, "ပစ္စည်းစာရင်းကို ခဏ ဖတ်မရသေးပါဘူးဗျ။");
+      }
     }
-    if (!answer) {
-      await send(staff, "UnitShop inquiry #" + id + "\n" + text.slice(0, 3900));
-      answer = "မေးခွန်းကို ဆိုင်ဆီ ပို့ပေးထားပါပြီဗျ။ ဒီ Chat ထဲမှာ ပြန်လည်ဖြေကြားပေးပါမယ်။";
-    }
-    await send(id, answer);
+    await send(id, answer || offerHelp(text, "ဘယ်လိုပစ္စည်းရှာနေတာလဲဗျ။ မော်ဒယ်နာမည် ဒါမှမဟုတ် လိုချင်တဲ့အချက်လေး ရေးပေးပါ။"), conversational);
   }
   return new Response(null);
 }
