@@ -41,3 +41,12 @@ test("staff escalation keeps the original inquiry when the customer opts in",()=
   assert.equal(handoff(q,""),undefined);
   assert.equal(handoff("ဆိုင်ကိုမေးပေးပါ",offerHelp(q,"")),q);
 });
+
+test("general router price requests list home routers without asking for a model", () => {
+  for (const question of ["Router ဈေးပြပါ", "router စျေးဘယ်လောက်လဲ"]) {
+    const answer = shoppingAnswer(question, catalog);
+    assert.match(answer, /Home router — 190,000/);
+    assert.doesNotMatch(answer, /Portable PowerBank/);
+  }
+  assert.equal(handoff("ဆိုင်ကိုမေးပေးပါ — ဒီစက်လေးရလား", ""), "ဒီစက်လေးရလား");
+});

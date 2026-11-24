@@ -49,6 +49,7 @@ export function offerHelp(input: string, message: string) {
 }
 
 export function handoff(input: string, previous: string) {
+  if (input.startsWith("ဆိုင်ကိုမေးပေးပါ — ")) return input.slice("ဆိုင်ကိုမေးပေးပါ — ".length);
   if (/^\/staff(?:\s|$)/i.test(input)) return input.replace(/^\/staff\s*/i, "") || "ဝန်ထမ်းနဲ့ ပြောချင်ပါတယ်။";
   if (/^(?:ဆိုင်ကိုမေးပေးပါ|ဝန်ထမ်းနဲ့ပြောချင်ပါတယ်)[။ ]*$/.test(input.replace(/\s/g,"")))
     return previous.split("\nမေးထားတာ — ")[1] || input;
@@ -66,6 +67,7 @@ export function shoppingAnswer(input: string, catalog: {products: Product[]; cat
   if (portableWords.test(text)) use = "portable";
   else if (homeWords.test(text)) use = "home";
 
+  if (!use && /router|ရောက်တာ|ရောက်တာစက်|ရောက်တာစျေး/.test(text) && /ဈေး|စျေး|စျေ|စျေးနှုန်း|price|ဘယ်လောက်/.test(text) && !/[a-z]+[0-9]/i.test(text)) use = "home";
   const antenna = antennaWords.test(text);
   const bank = bankWords.test(text);
   if (!use && (antenna || bank)) {
