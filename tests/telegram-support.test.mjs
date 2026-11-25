@@ -50,3 +50,25 @@ test("general router price requests list home routers without asking for a model
   }
   assert.equal(handoff("ဆိုင်ကိုမေးပေးပါ — ဒီစက်လေးရလား", ""), "ဒီစက်လေးရလား");
 });
+
+test("shop visit, cash on delivery, warranty and township questions",()=>{
+  assert.match(faq("ဆိုင်က ဘယ်နားမှာလဲရှင်"),/16\.8287080/);
+  assert.match(faq("အိမ်ရောက်ငွေချေရလား"),/COD/);
+  assert.match(faq("အာမခံရော ပါလား"),/မော်ဒယ်အလိုက်/);
+  const question=faq("Mytel business card ရောင်းလားဗျ");
+  assert.match(faq("ပဲခူးမြို့",question),/Mytel Mini Bus ကတ် သုံးမယ့်မြို့နယ် — ပဲခူးမြို့/);
+  assert.match(faq("Location Unlock လား"),/ကွန်ရက်/);
+});
+test("device-only follow-up uses a single preceding active product, asks when ambiguous",()=>{
+  const previous="https://www.unitshopmm.com/products/1";
+  assert.match(shoppingAnswer("စက်သီးသန့်ပါ", catalog, previous),/Portable PowerBank/);
+  assert.match(shoppingAnswer("စက်သီးသန့်ပါ", catalog, previous+"\nhttps://www.unitshopmm.com/products/2"),/ဘယ်စက်/);
+});
+
+test("portable suggestions respect Burmese and numeric spending limits",()=>{
+  for(const cap of ["နှစ်သိန်း မကျော်","၂၀၀,၀၀၀ မကျော်"]) {
+    const answer=shoppingAnswer("အိတ်ဆောင် "+cap,{...catalog,products:[...catalog.products,{id:8,name_en:"Over budget",category_id:1,price:250000,is_active:true}]});
+    assert.match(answer,/Portable PowerBank/);
+    assert.doesNotMatch(answer,/Over budget/);
+  }
+});

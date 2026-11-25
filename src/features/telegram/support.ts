@@ -2,8 +2,20 @@ import type { Product } from "../catalog/data";
 
 export const shop = "https://www.unitshopmm.com";
 
-export function faq(input: string): string | undefined {
+export function faq(input: string, previous = ""): string | undefined {
   const text = input.trim().toLowerCase();
+  if (/ဆိုင်.*(ဘယ်နား|ဘယ်မှာ|လိပ်စာ|ဘယ်နေရာ|လာယူ|လာဝယ်)|ဆိုင်လိပ်စာ|အခုလာမလို့|shop address|shop location/.test(text))
+    return "ဆိုင်က ရန်ကုန်၊ သဃန်းကျွန်း၊ သုဝဏ္ဏဈေးအနီး၊ အမှတ် 7A၊ G.I.G Company မှာပါဗျ။ ဖုန်း 09780078055\nမြေပုံဖွင့်ရန် https://www.google.com/maps/search/?api=1&query=16.8287080,96.2102567";
+  if (/အိမ်ရောက်ငွေချေ|ပစ္စည်းရောက်မှ.*(ရှင်း|ပေး|ငွေချေ)|အိမ်အရောက်ငွေချေ/.test(text))
+    return "အိမ်ရောက်ငွေချေ ရပါတယ်ဗျ။ Website မှာ မှာယူတဲ့အခါ COD ကို ရွေးပေးပါ။ ဆိုင်မှာလည်း လာယူလို့ရပါတယ်။";
+  if (/mytel|မိုင်တဲလ်|မိုင်တယ်/.test(text) && /ကတ်|ကဒ်|business|mini.?bus|card|sim/.test(text))
+    return "Mytel Mini Bus ကတ်က သုံးမယ့်မြို့နယ်အလိုက် စစ်ပေးရပါတယ်ဗျ။ ဘယ်မြို့နယ်မှာ သုံးမှာလဲ?";
+  if (/location\s*unlock|နေရာပြောင်း.*သုံး|သယ်သွား.*သုံးလို့ရလား/.test(text))
+    return "Location Unlock စက်ကို နေရာပြောင်းသယ်သုံးလို့ရပါတယ်ဗျ။ လိုင်းရဖို့ သုံးတဲ့ SIM ရဲ့ ကွန်ရက်မိရပါမယ်။ Mytel Mini Bus လို ကတ်ဆိုရင် သုံးမယ့်မြို့နယ်ကိုလည်း စစ်ပေးရပါတယ်။";
+  if (/အာမခံ|warranty/.test(text) && !/လိုင်း|signal/.test(text))
+    return offerHelp(input, "ဆိုင်က ရောင်းတဲ့စက်တွေမှာ အာမခံပါတယ်ဗျ။ အာမခံကာလနဲ့ အကျုံးဝင်တဲ့အချက်တွေကို မော်ဒယ်အလိုက် ဆိုင်က စစ်ပေးနိုင်ပါတယ်။");
+  if (previous.includes("Mytel Mini Bus") && previous.endsWith("ဘယ်မြို့နယ်မှာ သုံးမှာလဲ?") && text.length < 80)
+    return offerHelp("Mytel Mini Bus ကတ် သုံးမယ့်မြို့နယ် — " + input, "ဒီမြို့နယ်မှာ ကတ်သုံးလို့ရမရ ဆိုင်က စစ်ပေးရပါမယ်ဗျ။");
   if (/^(\/start(?: .*)?|\/help|hi|hello|မင်္ဂလာပါ)$/.test(text))
     return "မင်္ဂလာပါဗျ။ ဈေးနှုန်းနဲ့ ပစ္စည်းအကြောင်း သိချင်ရင် မော်ဒယ်နာမည် ဒါမှမဟုတ် «တိုင်ပါတာရှိလား»၊ «သယ်သုံးဖို့ WiFi ပြပေးပါ» လို့ မေးလို့ရပါတယ်။ COD၊ MMQR နဲ့ Promotion အကြောင်းလည်း မေးနိုင်ပါတယ်။ ဆိုင်ကို တိုက်ရိုက်မေးချင်ရင် /staff နောက်မှာ မေးခွန်းရေးပေးပါ။";
   // Only answer general policy questions. Personal payment or order issues need staff.
@@ -37,7 +49,7 @@ export function productAnswer(input: string, products: Product[]): string | unde
 }
 
 type Use = "portable" | "home";
-const portableWords = /portable|mifi|pocket|သယ်|အိတ်ဆောင်|ခရီး|အပြင်/;
+const portableWords = /portable|mifi|pocket|သယ်|အိတ်ဆောင်|ခရီး|အပြင်|ကားပေါ်|car\s/;
 const homeWords = /အိမ်|အထိုင်|တစ်နေရာ|တနေရာ|home/;
 const antennaWords = /antenna|တိုင်|အင်တင်နာ|အင်တဲနာ/;
 const bankWords = /power\s*bank|ပါဝါဘဏ်|ပါဝါဘန့်|ဖုန်း.*အား.*သွင်း/;
@@ -58,10 +70,22 @@ export function handoff(input: string, previous: string) {
 
 export function shoppingAnswer(input: string, catalog: {products: Product[]; categories: {id:number; name_en:string}[]}, previous = "") {
   const text = input.normalize("NFKC").toLowerCase();
+  if (/စက်သီးသန[့််]*|စက်ချည်း|စက်ပဲ|device only/.test(text)) {
+    const links = [...previous.matchAll(/https:\/\/www\.unitshopmm\.com\/products\/(\d+)/g)];
+    const prior = links.length === 1 ? catalog.products.find(p => p.is_active && p.id === Number(links[0][1])) : undefined;
+    const listing = productAnswer(input, catalog.products) || (prior && productAnswer(prior.name_en, [prior]));
+    if (listing) return offerHelp(input + " " + (prior?.name_en || ""), "Website မှာ ဖော်ပြထားတဲ့ဈေးပါဗျ။ SIM ပါဝင်မှုကို ဆိုင်က အတည်ပြုပေးနိုင်ပါတယ်။\n" + listing);
+    return "ဘယ်စက်လေးရဲ့ စက်သီးသန့်ဈေးကို ကြည့်ချင်လဲဗျ။ စက်ပုံလေးပို့ပေးလည်း ရပါတယ်။";
+  }
   if (/အာမခံ|ပြန်လဲ|ပြုပြင်|refund|warranty|အော်ဒါ|ပို့ခ|delivery/.test(text)) return;
   if (/(လိုင်း|signal|coverage).*(သေချာ|အာမခံ|အမြန်နှုန်း)|ရွာ.*လိုင်း/.test(text))
     return offerHelp(input, "လိုင်းရနှုန်းက SIM နဲ့ သုံးမယ့်နေရာပေါ် မူတည်ပါတယ်ဗျ။");
-  if (/အောက်|ဘတ်ဂျက်|budget|under|မကျော်/.test(text))
+  const digits = text.replace(/[၀-၉]/g, digit => String(digit.charCodeAt(0) - 0x1040)).replace(/,/g, "");
+  const lakh = digits.match(/(တစ်|တ|နှစ်|သုံး|လေး|ငါး|\d+(?:\.\d+)?)\s*သိန်း/);
+  const lakhValues: Record<string,number> = {တစ်:1,တ:1,နှစ်:2,သုံး:3,လေး:4,ငါး:5};
+  const budget = lakh ? (lakhValues[lakh[1]] || Number(lakh[1])) * 100000 : Number(digits.match(/(?:under|budget)\s*(\d{4,})/)?.[1] || digits.match(/(\d{4,})\s*(?:ကျပ်|ks|mmk|အောက်|မကျော်|လောက်ပဲ)/)?.[1]);
+  const hasBudget = /အောက်|ဘတ်ဂျက်|budget|under|မကျော်|လောက်ပဲ/.test(text);
+  if (hasBudget && !budget)
     return offerHelp(input, "ဘတ်ဂျက်နဲ့ ကိုက်တဲ့ မော်ဒယ်ကို ဆိုင်က စစ်ပေးနိုင်ပါတယ်ဗျ။");
   let use: Use | undefined;
   if (portableWords.test(text)) use = "portable";
@@ -82,6 +106,7 @@ export function shoppingAnswer(input: string, catalog: {products: Product[]; cat
     const words: string[] = p.name_en.toLowerCase().match(/[a-z0-9]+/g) || [];
     if (!models.every(model => words.includes(model))) return false;
     const group = category.get(p.category_id);
+    if (hasBudget && (p.price > budget || (p.price === budget && /အောက်|under/.test(text)))) return false;
     if (!p.is_active || !["mifi", "routers"].includes(group || "")) return false;
     const info = [p.name_en,p.name_mm,p.description_en,p.description_mm].join("\n").toLowerCase();
     const portable = group === "mifi" || /pocket wi-?fi|portable router/.test(p.name_en.toLowerCase());
