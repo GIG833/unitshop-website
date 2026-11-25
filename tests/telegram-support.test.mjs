@@ -50,3 +50,14 @@ test("general router price requests list home routers without asking for a model
   }
   assert.equal(handoff("ဆိုင်ကိုမေးပေးပါ — ဒီစက်လေးရလား", ""), "ဒီစက်လေးရလား");
 });
+
+test("a correction selects only active WiFi cards even after portable suggestions",()=>{
+  const data={categories:[...catalog.categories,{id:19,name_en:" WiFi Cards"}],products:[
+    ...catalog.products,{id:42,name_en:"ATOM Flexinet",category_id:19,is_active:true,price:40000},
+    {id:43,name_en:"U9 Supernet",category_id:19,is_active:true,price:50000},
+    {id:44,name_en:"Inactive",category_id:19,is_active:false,price:1}]};
+  const answer=shoppingAnswer("စက်မဟုတ်ဘူး ကတ် လိုချင်တာပါ",data,"သယ်သုံးဖို့ WiFi စက်တွေ");
+  assert.match(answer,/40,000/); assert.match(answer,/U9 Supernet/); assert.doesNotMatch(answer,/Portable PowerBank|Inactive/);
+  assert.doesNotMatch(shoppingAnswer("ATOM ကဒ်",data),/U9 Supernet/);
+  assert.doesNotMatch(shoppingAnswer("SIM Router ဈေးပြပါ",data)||"",/ကတ်သီးသန့်/);
+});

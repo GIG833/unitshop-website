@@ -58,6 +58,18 @@ export function handoff(input: string, previous: string) {
 
 export function shoppingAnswer(input: string, catalog: {products: Product[]; categories: {id:number; name_en:string}[]}, previous = "") {
   const text = input.normalize("NFKC").toLowerCase();
+  const cardRequest = /ကတ်|ကဒ်|ကဒ္|ဆင်းမ်|\bsim\b|\bcards?\b/.test(text);
+  const deviceRequest = /sim\s*(router|ready)|(?:ကတ်|ကဒ်).*?(စိုက်|ထည့်|ထည့်|မလို|မဟုတ်)|စက်သီးသန့်/.test(text);
+  if (cardRequest && !deviceRequest && !/သက်တမ်း|ငွေဖြည့်|အာမခံ|ပြင်ပေး/.test(text)) {
+    const cardCategories = catalog.categories.filter(c => /^wi[ -]?fi\s*cards?$/i.test(c.name_en.trim())).map(c => c.id);
+    const operator = text.match(/atom|mytel|u9|flexinet|supernet|minibus|unlimited/)?.[0];
+    const cards = catalog.products.filter(p => p.is_active && cardCategories.includes(p.category_id)
+      && (!operator || p.name_en.toLowerCase().includes(operator))).sort((a,b) => a.price - b.price || a.id - b.id);
+    if (!cards.length) return offerHelp(input, "အခု Website ကတ်စာရင်းမှာ ကိုက်ညီတဲ့ကတ် ရှာမတွေ့သေးပါဘူးဗျ။");
+    return "WiFi ကတ်သီးသန့် လက်ရှိဈေးတွေပါဗျ။\n\n" + cards.slice(0,8).map(p =>
+      p.name_en + " — " + p.price.toLocaleString("en-US") + " ကျပ်\n" + shop + "/products/" + p.id
+    ).join("\n\n").slice(0,3800);
+  }
   if (/အာမခံ|ပြန်လဲ|ပြုပြင်|refund|warranty|အော်ဒါ|ပို့ခ|delivery/.test(text)) return;
   if (/(လိုင်း|signal|coverage).*(သေချာ|အာမခံ|အမြန်နှုန်း)|ရွာ.*လိုင်း/.test(text))
     return offerHelp(input, "လိုင်းရနှုန်းက SIM နဲ့ သုံးမယ့်နေရာပေါ် မူတည်ပါတယ်ဗျ။");

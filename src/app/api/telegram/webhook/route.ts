@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     let answer = photo ? undefined : faq(question);
     if (/^\/start(?: |$)|^\/help$/i.test(question) && !photo) {
       await send(id, "မင်္ဂလာပါဗျ။ စက်ပုံလေး ပို့ပြီး ဈေးမေးလို့ရပါတယ်။ အောက်ကနေလည်း နှိပ်ရွေးနိုင်ပါတယ်။",
-        [["Router ဈေးပြပါ", "သယ်သုံးဖို့ WiFi"], ["ဆိုင်ကိုမေးပေးပါ"]]);
+        [["Router ဈေးပြပါ", "သယ်သုံးဖို့ WiFi"], ["WiFi ကတ်ဈေးပြပါ"], ["ဆိုင်ကိုမေးပေးပါ"]]);
       return new Response(null);
     }
     const conversational = !answer;
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     }
     if (!answer || answer.includes("ဆိုင်က စစ်ပေးစေချင်ရင်")) {
       const summary = answer?.split("\n\n")[0] || "ဘာလေး ကြည့်ချင်လဲဗျ။ အောက်ကနေ နှိပ်ရွေးလို့ရပါတယ်။";
-      await send(id, summary, [["Router ဈေးပြပါ", "သယ်သုံးဖို့ WiFi"], ["ဆိုင်ကိုမေးပေးပါ — " + question.slice(0, 110)]]);
+      await send(id, summary, [["Router ဈေးပြပါ", "သယ်သုံးဖို့ WiFi"], ["WiFi ကတ်ဈေးပြပါ"], ["ဆိုင်ကိုမေးပေးပါ — " + question.slice(0, 110)]]);
     } else if (answer.endsWith("သယ်သုံးဖို့လား?")) {
       await send(id, answer, [["အိမ်သုံးဖို့", "သယ်သုံးဖို့"]]);
     } else {
